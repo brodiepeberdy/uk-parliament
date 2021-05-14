@@ -20,7 +20,7 @@ class LandingPage extends React.Component {
 }
 
 class Header extends React.Component {
-  render() {
+  render() { 
     const mystyle = {
       position: "absolute",
       textAlign: 'center',
