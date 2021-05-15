@@ -4,5 +4,48 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 div {
-  padding: 1.5em;
+  padding: 1em;
+}
+
+.header {
+  position: absolute;
+  text-align: center;
+  font-weight: bold;
+  top: 0;
+  right: 0;
+  left: 0;
+  margin: 0;
+  padding: 0.5em;
+  color: white;
+  background-color: SlateBlue;
+}
+
+.footer {
+  position: absolute;
+  text-align: center;
+  font-weight: bold;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: 0;
+  padding: 0.15em;
+  color: white;
+  background-color: SlateBlue;
+}
+
+/* unvisited link */
+a:link {
+  color: white;
+}
+/* visited link */
+a:visited {
+  color: white;
+}
+/* mouse over link */
+a:hover {
+  color: white;
+}
+/* selected link */
+a:active {
+  color: white;
 }
