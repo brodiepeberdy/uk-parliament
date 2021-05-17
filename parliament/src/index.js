@@ -13,7 +13,6 @@ class LandingPage extends React.Component {
         </div>
         <div id="content">
           <LandingButtons/>
-          <Search/>
         </div>
         <Footer/>
       </div>
@@ -79,7 +78,11 @@ class HoCMembers extends React.Component {
 
 class Header extends React.Component {
   render() {
-    return <h1 className="header">UK Parliament: Who Represents Me?</h1>;
+    return (
+      <div className="header">
+        <h1><Button text="" type="Home" icon="fa fa-home" background="SlateBlue"/>UK Parliament: Who Represents Me?</h1>
+      </div>
+    );
   }
 }
 
@@ -96,7 +99,9 @@ class Footer extends React.Component {
 class Search extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {results: null};
   }
+
   APIcaller(url){
     var self = this;
     var xmlhttp = new XMLHttpRequest();
@@ -114,7 +119,10 @@ class Search extends React.Component {
     this.APIcaller("https://members-api.parliament.uk" + this.props.endpoint + "?searchText=" + this.state.search);
   }
   DisplayResults(response){
-    console.log(response);
+    this.updateResults(JSON.stringify(response));
+  }
+  updateResults(results) {
+    this.setState({results: results});
   }
   changeSearch = (event) => {
     this.setState({search: event.target.value});
@@ -130,10 +138,33 @@ class Search extends React.Component {
           <input style={mystyle} type="text" placeholder="Search..." onChange={this.changeSearch}/>
           <button type="submit"><i className="fa fa-search"></i></button>
         </form>
+        <ConstituencySearchDisplay results={this.state.results}/>
       </div>
     );
   }
 }
+
+
+class ConstituencySearchDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    try {
+      const results = JSON.parse(this.props.results);
+      var searchResults = [];
+      for (var i = 0; i < results.items.length; i++){
+        searchResults.push(<p>{results.items[i].value.name}</p>);
+      }
+      return (<div>{searchResults}</div>);
+    }
+    catch (error) {
+      return <p></p>;
+    }
+  }
+}
+
+
 
 class Button extends React.Component {
   constructor(props) {
@@ -149,9 +180,13 @@ class Button extends React.Component {
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCMembers/>, document.getElementById('root'));
     }
+    else if (type === "Home"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<LandingPage/>, document.getElementById('root'));
+    }
   }
   render() {
-    const mystyle = {
+    var mystyle = {
       textAlign: "center",
       backgroundColor: this.props.background,
       color: "White",
@@ -164,7 +199,26 @@ class Button extends React.Component {
       display: "inline-block",
       cursor: "pointer"
     };
-    return <button type="button" onClick={() => this.select(this.props.type)} style={mystyle}><i className={this.props.icon}></i>{this.props.text}</button>;
+    var iconStyle = {};
+    if (this.props.type == "Home"){
+      var mystyle = {
+        float: "left",
+        textAlign: "center",
+        backgroundColor: this.props.background,
+        color: "White",
+        display: "block",
+        border: "none",
+        padding: "0.25em",
+        margin: "0 auto",
+        display: "inline",
+        display: "inline-block",
+        cursor: "pointer"
+      };
+      iconStyle = {
+        fontSize: "2.5em"
+      };
+    }
+    return <button type="button" onClick={() => this.select(this.props.type)} style={mystyle}><i style={iconStyle} className={this.props.icon}></i>{this.props.text}</button>;
   }
 }
 

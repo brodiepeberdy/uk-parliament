@@ -7,7 +7,7 @@ div {
   padding: 1em;
 }
 
-.header {
+.header h1 {
   position: absolute;
   text-align: center;
   font-weight: bold;
