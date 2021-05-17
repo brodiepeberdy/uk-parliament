@@ -80,7 +80,7 @@ class Header extends React.Component {
   render() {
     return (
       <div className="header">
-        <h1><Button text="" type="Home" icon="fa fa-home" background="SlateBlue"/>UK Parliament: Who Represents Me?</h1>
+        <h1><Button text="" type="Home" icon="fa fa-home" background="CornflowerBlue"/>UK Parliament: Who Represents Me?</h1>
       </div>
     );
   }
@@ -101,7 +101,6 @@ class Search extends React.Component {
     super(props);
     this.state = {results: null};
   }
-
   APIcaller(url){
     var self = this;
     var xmlhttp = new XMLHttpRequest();
@@ -116,7 +115,17 @@ class Search extends React.Component {
   }
   submitSearch = (event) => {
     event.preventDefault();
-    this.APIcaller("https://members-api.parliament.uk" + this.props.endpoint + "?searchText=" + this.state.search);
+    try {
+      if (this.state.search.trim() != "" || this.state.search.trim() != undefined || this.state.search.trim() != null){
+        this.APIcaller("https://members-api.parliament.uk" + this.props.endpoint + "?searchText=" + this.state.search);
+      }
+      else{
+        throw "Please enter a valid constituency name.";
+      }
+    }
+    catch (error) {
+      alert("Please enter a valid constituency name.");
+    }
   }
   DisplayResults(response){
     this.updateResults(JSON.stringify(response));
@@ -134,9 +143,9 @@ class Search extends React.Component {
     };
     return (
       <div className="search-container">
-        <form onSubmit={this.submitSearch}>
-          <input style={mystyle} type="text" placeholder="Search..." onChange={this.changeSearch}/>
-          <button type="submit"><i className="fa fa-search"></i></button>
+        <form className="SearchBar" onSubmit={this.submitSearch}>
+          <input className="SearchInput" style={mystyle} type="text" placeholder="Search..." onChange={this.changeSearch}/>
+          <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
         </form>
         <ConstituencySearchDisplay results={this.state.results}/>
       </div>
@@ -144,23 +153,69 @@ class Search extends React.Component {
   }
 }
 
-
 class ConstituencySearchDisplay extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {selectedID: null, response: null};
+  }
+  select(id){
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
+  }
+  APIcaller(url, id){
+    this.responseText = null; // Weird cache issue
+    url = url + id.toString();
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        self.setState({selectedID: id, response: response});
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
   }
   render() {
     try {
       const results = JSON.parse(this.props.results);
-      var searchResults = [];
-      for (var i = 0; i < results.items.length; i++){
-        searchResults.push(<p>{results.items[i].value.name}</p>);
+      //
+      if (this.state.selectedID == null){
+        return (
+          <div>
+            <ul className="results">
+              {results.items.map((item) => (
+                <li key={item.value.id}><a onClick={() => this.select(item.value.id)}>{item.value.name}</a></li>
+              ))}
+            </ul>
+          </div>);
       }
-      return (<div>{searchResults}</div>);
+      else {
+        console.log(JSON.parse(this.state.response));
+        return (
+          <div>
+            <ul className="results">
+              {results.items.map((item) => (
+                <li key={item.value.id}><a onClick={() => this.select(item.value.id)}>{item.value.name}</a></li>
+              ))}
+            </ul>
+            <ConstituencySearchSelect id={this.state.id} response={this.state.response}/>
+          </div>);
+      }
     }
     catch (error) {
-      return <p></p>;
+      return <p>failed</p>;
     }
+  }
+}
+
+class ConstituencySearchSelect extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    var response = JSON.parse(this.props.response);
+    setTimeout(1000);
+    return (<div className="selected">{this.props.id} {response.value.name}</div>);
   }
 }
 
