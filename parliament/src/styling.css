@@ -52,7 +52,7 @@ a:active {
 
 .results {
   display: inline-block;
-  border: 1px solid black;
+  border: 0.15em solid black;
   padding: 0.5em;
   list-style-type: none;
   background-color: AliceBlue;
@@ -61,9 +61,19 @@ a:active {
   width: 30%;
 }
 
+.results a {
+  color: Black;
+  cursor: pointer;
+}
+.results a:hover {
+  color: Grey;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .selected {
   display: inline-block;
-  border: 1px solid black;
+  border: 0.15em solid black;
   padding: 0.5em;
   background-color: AliceBlue;
   border-radius: 0.25em 0.25em 0.25em 0.25em;
@@ -72,11 +82,11 @@ a:active {
   width: 60%;
 }
 
-.results a {
+.selected a {
   color: Black;
   cursor: pointer;
 }
-.results a:hover {
+.selected a:hover {
   color: Grey;
   cursor: pointer;
   text-decoration: underline;

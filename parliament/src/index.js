@@ -203,7 +203,7 @@ class ConstituencySearchDisplay extends React.Component {
       }
     }
     catch (error) {
-      return <p>failed</p>;
+      return <p> </p>;
     }
   }
 }
@@ -212,10 +212,23 @@ class ConstituencySearchSelect extends React.Component {
   constructor(props) {
     super(props);
   }
+  selectConstituency(id){
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
+  }
+  selectMember(id){
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
+  }
   render() {
     var response = JSON.parse(this.props.response);
     setTimeout(1000);
-    return (<div className="selected">{this.props.id} {response.value.name}</div>);
+    var image = response.value.currentRepresentation.member.value.thumbnailUrl;
+    return (
+      <div className="selected">
+        <img src={image} width="200em" height="200em"></img>
+        <a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a>
+        Represented by <a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a>
+        , {response.value.currentRepresentation.member.value.latestParty.name}.
+      </div>);
   }
 }
 
