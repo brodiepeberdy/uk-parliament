@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import './styling.css';
 import 'font-awesome/css/font-awesome.min.css';
 
-// Gathers the components for the initial landing page.
+
+
+// Gathers the components for the initial landing page. DIsplays the Annunciator.
 class LandingPage extends React.Component {
   render() {
     return (
@@ -11,14 +13,21 @@ class LandingPage extends React.Component {
         <div>
           <Header/>
         </div>
-        <div id="content">
-          <LandingButtons/>
+        <div className="contentBlock">
+          <Annunciator/>
         </div>
+
+        <div className="contentBlock">
+          <LandingButtons/>
+          <p>Understanding the labrynth of Parliamentary committees, schedules, and rules becomes quickly overwhelmingly. This resource aims to provide a more concise and accessible means of understanding who represents you in Parliament, what theirs views are, and the general proceedings of both Houses.</p>
+        </div>
+
         <Footer/>
       </div>
     )
   }
 }
+
 // Row of buttons for navigating from the landing page.
 class LandingButtons extends React.Component {
   render() {
@@ -40,7 +49,7 @@ class HoCPage extends React.Component {
         <div>
           <Header/>
         </div>
-        <div id="content">
+        <div className="contentBlock">
           <HoCButtons/>
         </div>
         <Footer/>
@@ -48,6 +57,7 @@ class HoCPage extends React.Component {
     )
   }
 }
+
 class HoCButtons extends React.Component {
   render() {
     return (
@@ -80,7 +90,7 @@ class Header extends React.Component {
   render() {
     return (
       <div className="header">
-        <h1><Button text="" type="Home" icon="fa fa-home" background="CornflowerBlue"/>UK Parliament: Who Represents Me?</h1>
+        <h1><Button text="" type="Icon" icon="fa fa-home" background="CornflowerBlue"/>UK Parliament: Who Represents Me?</h1>
       </div>
     );
   }
@@ -90,7 +100,7 @@ class Footer extends React.Component {
   render() {
     return (
       <div className="footer">
-        <p>Parliamentary information licensed under the <a href="https://www.parliament.uk/site-information/copyright-parliament/open-parliament-licence/">Open Parliament License v3.0</a>.</p>
+        <p>Website Developed by Brodie Peberdy - Parliamentary information licensed under the <a href="https://www.parliament.uk/site-information/copyright-parliament/open-parliament-licence/">Open Parliament License v3.0</a>.</p>
       </div>
     );
   }
@@ -116,7 +126,7 @@ class Search extends React.Component {
   submitSearch = (event) => {
     event.preventDefault();
     try {
-      if (this.state.search.trim() != "" || this.state.search.trim() != undefined || this.state.search.trim() != null){
+      if (this.state.search.trim() !== "" || this.state.search.trim() !== undefined || this.state.search.trim() !== null){
         this.APIcaller("https://members-api.parliament.uk" + this.props.endpoint + "?searchText=" + this.state.search);
       }
       else{
@@ -131,6 +141,9 @@ class Search extends React.Component {
     this.updateResults(JSON.stringify(response));
   }
   updateResults(results) {
+    if (JSON.parse(results).totalResults === 0){
+      results = null;
+    }
     this.setState({results: results});
   }
   changeSearch = (event) => {
@@ -144,7 +157,7 @@ class Search extends React.Component {
     return (
       <div className="search-container">
         <form className="SearchBar" onSubmit={this.submitSearch}>
-          <input className="SearchInput" style={mystyle} type="text" placeholder="Search..." onChange={this.changeSearch}/>
+          <input className="SearchInput" style={mystyle} type="text" placeholder="Search for constituency, or enter your post code..." onChange={this.changeSearch}/>
           <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
         </form>
         <ConstituencySearchDisplay results={this.state.results}/>
@@ -178,8 +191,13 @@ class ConstituencySearchDisplay extends React.Component {
   render() {
     try {
       const results = JSON.parse(this.props.results);
-      //
-      if (this.state.selectedID == null){
+      if (results === null){
+        return (
+          <div className="contentBlock">
+            <p>Nothing showing up? Double check what you entered!</p>
+          </div>);
+      }
+      else if (this.state.selectedID == null){
         return (
           <div>
             <ul className="results">
@@ -208,12 +226,29 @@ class ConstituencySearchDisplay extends React.Component {
   }
 }
 
+
 class ConstituencySearchSelect extends React.Component {
-  constructor(props) {
-    super(props);
+  APIcaller(url, id){
+    this.responseText = null; // Weird cache issue
+    url = url + id.toString();
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    var self = this;
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        self.displayConstituency(response);
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
   }
   selectConstituency(id){
     this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
+  }
+  displayConstituency(response) {
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<ConstituencyDisplay resp={response}/>, document.getElementById('root'));
   }
   selectMember(id){
     this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
@@ -224,20 +259,96 @@ class ConstituencySearchSelect extends React.Component {
     var image = response.value.currentRepresentation.member.value.thumbnailUrl;
     return (
       <div className="selected">
-        <img src={image} width="200em" height="200em"></img>
-        <a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a>
-        Represented by <a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a>
-        , {response.value.currentRepresentation.member.value.latestParty.name}.
+        <img src={image} alt={response.value.currentRepresentation.member.value.nameDisplayAs}></img>
+          <h1><a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a></h1><br/>
+          Represented by <b><a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a></b>
+          , {response.value.currentRepresentation.member.value.latestParty.name}.
       </div>);
   }
 }
 
-
-
-class Button extends React.Component {
+class ConstituencyDisplay extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {synopsis: null, results: null};
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", JSON.parse(this.props.resp).value.id, "Synopsis");
   }
+  APIcaller(url, id, endpoint){
+    this.responseText = null; // Weird cache issue
+    url = url + "/" + id.toString() + "/" + endpoint.toString();
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        if (endpoint == "Synopsis"){
+          self.setState({results: response});
+          console.log(self.state);
+        }
+        else if (endpoint === "Results"){
+          self.setState({results: response});
+        }
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  // Formats dates into a more readable state.
+  dateHandler(text) {
+    const months = [ "January", "February", "March", "April", "May", "June",
+           "July", "August", "September", "October", "November", "December" ];
+    var year = text.substring(0,4);
+    var month = months[parseInt(text.substring(5,7))];
+    var ordInd = "th";
+    if (text.substring(8,10) === "01" || text.substring(8,10) === "21" || text.substring(8,10) === "31"){
+      ordInd = "st";
+    }
+    else if (text.substring(8,10)[1] === "02" || text.substring(8,10)[1] === "22") {
+      ordInd = "nd";
+    }
+    else if (text.substring(8,10)[1] === "03" || text.substring(8,10)[1] === "23") {
+      ordInd = "rd";
+    }
+    var day = parseInt(text.substring(8,10));
+    return day + ordInd + " " + month + " " + year;
+  }
+  render() {
+    var overview = JSON.parse(this.props.resp);
+    var synopsis;
+    console.log(this.state);
+    if (this.state.synopsis === null){
+      synopsis = "";
+    }
+    else {
+      synopsis = JSON.parse(this.state.synopsis);
+    }
+    console.log(synopsis);
+    return(
+      <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="contentBlock">
+          <h1>{overview.value.name}</h1>
+          <h2>{synopsis}</h2>
+          <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {this.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
+        </div>
+        <div className="contentBlock">
+          <h3>Previous MPs</h3>
+        </div>
+        <div className="contentBlock">
+          <h3>Election History</h3>
+        </div>
+        <div className="contentBlock">
+          <h3>Location on Map</h3>
+        </div>
+        <Footer/>
+      </div>
+    );
+  }
+}
+
+class Button extends React.Component {
   select(type){
     console.log(type);
     if (type === "HoC"){
@@ -248,7 +359,7 @@ class Button extends React.Component {
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCMembers/>, document.getElementById('root'));
     }
-    else if (type === "Home"){
+    else if (type === "Icon"){
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<LandingPage/>, document.getElementById('root'));
     }
@@ -258,27 +369,23 @@ class Button extends React.Component {
       textAlign: "center",
       backgroundColor: this.props.background,
       color: "White",
-      display: "block",
       border: "none",
       width: "25%",
       padding: "1em",
       margin: "0 auto",
-      display: "inline",
       display: "inline-block",
-      cursor: "pointer"
+      cursor: "pointer",
     };
     var iconStyle = {};
-    if (this.props.type == "Home"){
+    if (this.props.type === "Icon"){
       var mystyle = {
         float: "left",
         textAlign: "center",
         backgroundColor: this.props.background,
         color: "White",
-        display: "block",
         border: "none",
         padding: "0.25em",
         margin: "0 auto",
-        display: "inline",
         display: "inline-block",
         cursor: "pointer"
       };
@@ -287,6 +394,31 @@ class Button extends React.Component {
       };
     }
     return <button type="button" onClick={() => this.select(this.props.type)} style={mystyle}><i style={iconStyle} className={this.props.icon}></i>{this.props.text}</button>;
+  }
+}
+
+class Annunciator extends React.Component {
+  APIcaller(url){
+    this.responseText = null; // Weird cache issue
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        return response;
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  render() {
+    // var CommonsMain = this.APIcaller("https://now-api.parliament.uk/api/Message/message/CommonsMain/current");
+    // var LordsMain = this.APIcaller("https://now-api.parliament.uk/api/Message/message/CommonsMain/current");
+    return(
+      <div>
+        <h1>Parliament Annunciator: What's happening right now?</h1>
+      </div>
+    );
   }
 }
 

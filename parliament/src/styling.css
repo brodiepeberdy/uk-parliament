@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-body {
+* {
   font-family: 'Roboto', sans-serif;
 }
 div {
-  padding: 1em;
+  padding: 0.05em;
+  margin: 1em;
 }
 
 .header h1 {
@@ -52,13 +53,13 @@ a:active {
 
 .results {
   display: inline-block;
-  border: 0.15em solid black;
   padding: 0.5em;
   list-style-type: none;
   background-color: AliceBlue;
-  border-radius: 0.25em 0.25em 0.25em 0.25em;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-left: 0.3em solid CornflowerBlue;
   float: left;
-  width: 30%;
+  width: 20%;
 }
 
 .results a {
@@ -73,23 +74,30 @@ a:active {
 
 .selected {
   display: inline-block;
-  border: 0.15em solid black;
-  padding: 0.5em;
+  padding: 0.10em;
   background-color: AliceBlue;
-  border-radius: 0.25em 0.25em 0.25em 0.25em;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-left: 0.3em solid CornflowerBlue;
   margin: 1em;
   overflow: hidden;
   width: 60%;
 }
 
 .selected a {
-  color: Black;
+  color: CornflowerBlue;
   cursor: pointer;
 }
 .selected a:hover {
   color: Grey;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.selected img {
+  margin: 0.75em;
+  float: left;
+  border: solid CornflowerBlue;
+  border-radius: 0.45em 0.45em 0.45em 0.45em;
 }
 
 .SearchBar {
@@ -114,4 +122,20 @@ a:active {
   border-radius: 0 5px 5px 0;
   cursor: pointer;
   font-size: 1.3em;
+}
+
+.contentBlock {
+  margin: 0.4em;
+  border-left: 0.3em solid CornflowerBlue;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  background-color: AliceBlue;
+}
+.contentBlock p {
+  padding-left: 1em;
+}
+.contentBlock h1 {
+  padding-left: 0.5em;
+}
+.contentBlock h3 {
+  padding-left: 0.75em;
 }
