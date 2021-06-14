@@ -34,6 +34,11 @@ div {
   background-color: CornflowerBlue;
 }
 
+.mainContent {
+  overflow: auto;
+  margin-bottom: 3em;
+}
+
 /* unvisited link */
 a:link {
   color: white;
@@ -139,3 +144,21 @@ a:active {
 .contentBlock h3 {
   padding-left: 0.75em;
 }
+
+
+
+
+
+.electionResult {
+  margin: 0.8em;
+  border: 0.3em solid;
+  border-radius: 1em 1em 1em 1em;
+  background-color: AliceBlue;
+  padding: 0.25em;
+}
+/* .electionResult h3 {
+  padding-right: 0.75em;
+}
+.electionResult h4 {
+  padding-left: 0.5em;
+} */

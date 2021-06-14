@@ -5,7 +5,7 @@ import 'font-awesome/css/font-awesome.min.css';
 
 
 
-// Gathers the components for the initial landing page. DIsplays the Annunciator.
+// Gathers the components for the initial landing page. Displays the Annunciator.
 class LandingPage extends React.Component {
   render() {
     return (
@@ -49,8 +49,10 @@ class HoCPage extends React.Component {
         <div>
           <Header/>
         </div>
-        <div className="contentBlock">
-          <HoCButtons/>
+        <div className="mainContent">
+          <div className="contentBlock">
+            <HoCButtons/>
+          </div>
         </div>
         <Footer/>
       </div>
@@ -155,7 +157,7 @@ class Search extends React.Component {
       width: "95%"
     };
     return (
-      <div className="search-container">
+      <div className="search-container mainContent">
         <form className="SearchBar" onSubmit={this.submitSearch}>
           <input className="SearchInput" style={mystyle} type="text" placeholder="Search for constituency, or enter your post code..." onChange={this.changeSearch}/>
           <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
@@ -271,7 +273,7 @@ class ConstituencyDisplay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {synopsis: null, results: null};
-    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", JSON.parse(this.props.resp).value.id, "Synopsis");
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency", JSON.parse(this.props.resp).value.id, "ElectionResults");
   }
   APIcaller(url, id, endpoint){
     this.responseText = null; // Weird cache issue
@@ -281,11 +283,8 @@ class ConstituencyDisplay extends React.Component {
     xmlhttp.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
         var response = JSON.stringify(JSON.parse(this.responseText));
-        if (endpoint == "Synopsis"){
-          self.setState({results: response});
-          console.log(self.state);
-        }
-        else if (endpoint === "Results"){
+        if (endpoint === "ElectionResults"){
+          console.log(response);
           self.setState({results: response});
         }
       }
@@ -298,7 +297,7 @@ class ConstituencyDisplay extends React.Component {
     const months = [ "January", "February", "March", "April", "May", "June",
            "July", "August", "September", "October", "November", "December" ];
     var year = text.substring(0,4);
-    var month = months[parseInt(text.substring(5,7))];
+    var month = months[parseInt(text.substring(5,7)) - 1];
     var ordInd = "th";
     if (text.substring(8,10) === "01" || text.substring(8,10) === "21" || text.substring(8,10) === "31"){
       ordInd = "st";
@@ -314,36 +313,60 @@ class ConstituencyDisplay extends React.Component {
   }
   render() {
     var overview = JSON.parse(this.props.resp);
-    var synopsis;
+    var results = JSON.parse(this.state.results);
+    var resultsForRender = [];
+    var location = "";
+    var retrievalError = <p>This data couldn't be retrieved.</p>;
+
     console.log(this.state);
-    if (this.state.synopsis === null){
-      synopsis = "";
+    if (results !== null){
+      console.log(results);
+      var numElections = results.value.length;
+      for (var i = 0; i < numElections; i++){
+        resultsForRender[i] = results.value[i];
+      }
     }
-    else {
-      synopsis = JSON.parse(this.state.synopsis);
-    }
-    console.log(synopsis);
+    // else {
+    //   resultsForRender[0] = retrievalError;
+    // }
+
     return(
       <div>
         <div>
           <Header/>
         </div>
-        <div className="contentBlock">
-          <h1>{overview.value.name}</h1>
-          <h2>{synopsis}</h2>
-          <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {this.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
-        </div>
-        <div className="contentBlock">
-          <h3>Previous MPs</h3>
-        </div>
-        <div className="contentBlock">
-          <h3>Election History</h3>
-        </div>
-        <div className="contentBlock">
-          <h3>Location on Map</h3>
+        <div className="mainContent">
+          <div className="contentBlock selected">
+            <img src={overview.value.currentRepresentation.member.value.thumbnailUrl} alt={overview.value.currentRepresentation.member.value.nameDisplayAs}></img>
+            <h1>{overview.value.name}</h1>
+            <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {this.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
+          </div>
+          <div className="contentBlock">
+            <h3>Previous MPs</h3>
+          </div>
+          <div className="contentBlock">
+            <h3>Election History of {overview.value.name}</h3>
+            {resultsForRender.map(election =>
+              <div className="electionResult" style={{border: "0.3em solid #" + election.winningParty.backgroundColour}}>
+                <h3>{election.electionTitle} | <i>{election.result}</i></h3>
+                <p><i>Electorate:</i> <b>{election.electorate}</b> | <i>Turnout:</i> <b>{Math.round((election.turnout / election.electorate) * 1000) / 10 + "%" }</b> | <i>Majority:</i> <b>{election.majority}</b></p>
+              </div>)}
+          </div>
+          <div className="contentBlock">
+            <h3>Location on Map</h3>
+            {location}
+          </div>
         </div>
         <Footer/>
       </div>
+    );
+  }
+}
+
+class ElectionOutcome extends React.Component {
+  render() {
+    return (
+      <div>{this.props.result}</div>
     );
   }
 }
