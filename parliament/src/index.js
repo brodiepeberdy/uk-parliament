@@ -5,16 +5,13 @@ import 'font-awesome/css/font-awesome.min.css';
 
 
 
-// Gathers the components for the initial landing page. Displays the Annunciator.
+// Gathers the components for the initial landing page.
 class LandingPage extends React.Component {
   render() {
     return (
       <div>
         <div>
           <Header/>
-        </div>
-        <div className="contentBlock">
-          <Annunciator/>
         </div>
 
         <div className="contentBlock">
@@ -261,7 +258,7 @@ class ConstituencySearchSelect extends React.Component {
     var image = response.value.currentRepresentation.member.value.thumbnailUrl;
     return (
       <div className="selected">
-        <img src={image} alt={response.value.currentRepresentation.member.value.nameDisplayAs}></img>
+        <img style={{border: "0.3em solid #" + response.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={image} alt={response.value.currentRepresentation.member.value.nameDisplayAs}></img>
           <h1><a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a></h1><br/>
           Represented by <b><a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a></b>
           , {response.value.currentRepresentation.member.value.latestParty.name}.
@@ -272,8 +269,9 @@ class ConstituencySearchSelect extends React.Component {
 class ConstituencyDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {synopsis: null, results: null};
+    this.state = {synopsis: null, results: null, representations: null};
     this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency", JSON.parse(this.props.resp).value.id, "ElectionResults");
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency", JSON.parse(this.props.resp).value.id, "Representations");
   }
   APIcaller(url, id, endpoint){
     this.responseText = null; // Weird cache issue
@@ -284,8 +282,10 @@ class ConstituencyDisplay extends React.Component {
       if (this.readyState === 4 && this.status === 200) {
         var response = JSON.stringify(JSON.parse(this.responseText));
         if (endpoint === "ElectionResults"){
-          console.log(response);
           self.setState({results: response});
+        }
+        else if (endpoint === "Representations"){
+          self.setState({representations: response});
         }
       }
     };
@@ -313,22 +313,27 @@ class ConstituencyDisplay extends React.Component {
   }
   render() {
     var overview = JSON.parse(this.props.resp);
+    var location = "";
+
     var results = JSON.parse(this.state.results);
     var resultsForRender = [];
-    var location = "";
-    var retrievalError = <p>This data couldn't be retrieved.</p>;
-
-    console.log(this.state);
     if (results !== null){
-      console.log(results);
       var numElections = results.value.length;
       for (var i = 0; i < numElections; i++){
         resultsForRender[i] = results.value[i];
       }
     }
-    // else {
-    //   resultsForRender[0] = retrievalError;
-    // }
+
+    var representations = JSON.parse(this.state.representations);
+    var representationsForRender = [];
+    if (representations !== null){
+      console.log(representations);
+      var numRepresentations = representations.value.length;
+      for (var i = 1; i < numRepresentations; i++){
+        representationsForRender[i] = representations.value[i];
+      }
+    }
+
 
     return(
       <div>
@@ -337,12 +342,18 @@ class ConstituencyDisplay extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock selected">
-            <img src={overview.value.currentRepresentation.member.value.thumbnailUrl} alt={overview.value.currentRepresentation.member.value.nameDisplayAs}></img>
+            <img style={{border: "0.3em solid #" + overview.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={overview.value.currentRepresentation.member.value.thumbnailUrl} alt={overview.value.currentRepresentation.member.value.nameDisplayAs}></img>
             <h1>{overview.value.name}</h1>
             <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {this.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
           </div>
           <div className="contentBlock">
             <h3>Previous MPs</h3>
+            {representationsForRender.map(rep =>
+              <div className="previousMP">
+                <img style={{border: "0.3em solid #" + rep.member.value.latestParty.backgroundColour}} src={rep.member.value.thumbnailUrl} alt={rep.member.value.nameDisplayAs}></img>
+                <p>{rep.member.value.nameDisplayAs} | {rep.member.value.latestParty.name}</p>
+              </div>
+            )}
           </div>
           <div className="contentBlock">
             <h3>Election History of {overview.value.name}</h3>
@@ -359,14 +370,6 @@ class ConstituencyDisplay extends React.Component {
         </div>
         <Footer/>
       </div>
-    );
-  }
-}
-
-class ElectionOutcome extends React.Component {
-  render() {
-    return (
-      <div>{this.props.result}</div>
     );
   }
 }
@@ -417,31 +420,6 @@ class Button extends React.Component {
       };
     }
     return <button type="button" onClick={() => this.select(this.props.type)} style={mystyle}><i style={iconStyle} className={this.props.icon}></i>{this.props.text}</button>;
-  }
-}
-
-class Annunciator extends React.Component {
-  APIcaller(url){
-    this.responseText = null; // Weird cache issue
-    var self = this;
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-      if (this.readyState === 4 && this.status === 200) {
-        var response = JSON.stringify(JSON.parse(this.responseText));
-        return response;
-      }
-    };
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
-  }
-  render() {
-    // var CommonsMain = this.APIcaller("https://now-api.parliament.uk/api/Message/message/CommonsMain/current");
-    // var LordsMain = this.APIcaller("https://now-api.parliament.uk/api/Message/message/CommonsMain/current");
-    return(
-      <div>
-        <h1>Parliament Annunciator: What's happening right now?</h1>
-      </div>
-    );
   }
 }
 

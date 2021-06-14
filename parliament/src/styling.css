@@ -101,8 +101,8 @@ a:active {
 .selected img {
   margin: 0.75em;
   float: left;
-  border: solid CornflowerBlue;
-  border-radius: 0.45em 0.45em 0.45em 0.45em;
+  border: 0.5em solid CornflowerBlue;
+  border-radius: 50% 50% 50% 50%;
 }
 
 .SearchBar {
@@ -156,9 +156,30 @@ a:active {
   background-color: AliceBlue;
   padding: 0.25em;
 }
-/* .electionResult h3 {
-  padding-right: 0.75em;
+
+.previousMP {
+  display: inline-block;
+  background-color: AliceBlue;
+  overflow: hidden;
+  width: 80%;
 }
-.electionResult h4 {
-  padding-left: 0.5em;
-} */
+.previousMP a {
+  color: CornflowerBlue;
+  cursor: pointer;
+}
+.previousMP a:hover {
+  color: Grey;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.previousMP img {
+  float: left;
+  border: 0.5em solid CornflowerBlue;
+  border-radius: 50% 50% 50% 50%;
+  height: 10em;
+  width: 10em;
+
+}
+.previousMP p {
+  float: left;
+}
