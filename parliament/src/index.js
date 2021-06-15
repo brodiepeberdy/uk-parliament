@@ -309,18 +309,12 @@ class ConstituencySearchSelect extends React.Component {
     xmlhttp.send();
   }
   selectConstituency(id){
-    this.APIcaller("https://members-api.parliament.uk/api/", "Location/Constituency/", id);
-  }
-  displayConstituency(response) {
     ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-    ReactDOM.render(<ConstituencyDisplay resp={response}/>, document.getElementById('root'));
+    ReactDOM.render(<ConstituencyDisplay id={id}/>, document.getElementById('root'));
   }
   selectMember(id){
-    this.APIcaller("https://members-api.parliament.uk/api/", "Members/", id);
-  }
-  displayMember(response) {
     ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-    ReactDOM.render(<MemberDisplay resp={response}/>, document.getElementById('root'));
+    ReactDOM.render(<MemberDisplay id={id}/>, document.getElementById('root'));
   }
   render() {
     var response = JSON.parse(this.props.response);
@@ -341,22 +335,25 @@ class ConstituencySearchSelect extends React.Component {
 class ConstituencyDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {synopsis: null, results: null, representations: null};
-    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency", JSON.parse(this.props.resp).value.id, "ElectionResults");
-    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency", JSON.parse(this.props.resp).value.id, "Representations");
+    this.state = {info: null, results: null, representations: null};
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/" + this.props.id, "info");
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/" + this.props.id + "/ElectionResults", "results");
+    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/" + this.props.id + "/Representations", "representations");
   }
-  APIcaller(url, id, endpoint){
+  APIcaller(url, type){
     this.responseText = null; // Weird cache issue
-    url = url + "/" + id.toString() + "/" + endpoint.toString();
     var self = this;
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
         var response = JSON.stringify(JSON.parse(this.responseText));
-        if (endpoint === "ElectionResults"){
+        if (type === "info"){
+          self.setState({info: response});
+        }
+        else if (type === "results"){
           self.setState({results: response});
         }
-        else if (endpoint === "Representations"){
+        else if (type === "representations"){
           self.setState({representations: response});
         }
       }
@@ -364,8 +361,12 @@ class ConstituencyDisplay extends React.Component {
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
   }
+  selectMember(id){
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<MemberDisplay id={id}/>, document.getElementById('root'));
+  }
   render() {
-    var overview = JSON.parse(this.props.resp);
+    var info = JSON.parse(this.state.info);
     var location = "";
 
     var results = JSON.parse(this.state.results);
@@ -387,6 +388,9 @@ class ConstituencyDisplay extends React.Component {
       }
     }
 
+    if (info == null){
+      return(<p/>);
+    }
 
     return(
       <div>
@@ -395,9 +399,9 @@ class ConstituencyDisplay extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock selected">
-            <img style={{border: "0.3em solid #" + overview.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={overview.value.currentRepresentation.member.value.thumbnailUrl} alt={overview.value.currentRepresentation.member.value.nameDisplayAs}></img>
-            <h1>{overview.value.name}</h1>
-            <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {Formatters.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
+            <img style={{border: "0.3em solid #" + info.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={info.value.currentRepresentation.member.value.thumbnailUrl} alt={info.value.currentRepresentation.member.value.nameDisplayAs}></img>
+            <h1>{info.value.name}</h1>
+            <p><a onClick={() => this.selectMember(info.value.currentRepresentation.member.value.id)}>{info.value.currentRepresentation.member.value.nameDisplayAs}</a> has been the the {info.value.currentRepresentation.member.value.latestParty.name} ({info.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {info.value.name} since {Formatters.dateHandler(info.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
           </div>
           <div className="contentBlock">
             <h3>Previous MPs</h3>
@@ -412,7 +416,7 @@ class ConstituencyDisplay extends React.Component {
             )}
           </div>
           <div className="contentBlock">
-            <h3>Election History of {overview.value.name}</h3>
+            <h3>Election History of {info.value.name}</h3>
             {resultsForRender.map(election =>
               <div className="electionResult" style={{border: "0.3em solid #" + election.winningParty.backgroundColour}}>
                 <h3>{election.electionTitle} | <i>{election.result}</i></h3>
@@ -435,23 +439,26 @@ class ConstituencyDisplay extends React.Component {
 class MemberDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {bio: null, contact: null, representations: null};
-    this.APIcaller("https://members-api.parliament.uk/api/Members/", JSON.parse(this.props.resp).value.id, "/Biography");
-    this.APIcaller("https://members-api.parliament.uk/api/Members/", JSON.parse(this.props.resp).value.id, "/Contact");
+    this.state = {info: null, bio: null, contact: null, representations: null};
+    this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id, "info");
+    this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Biography", "bio");
+    this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Contact", "contact");
 
   }
-  APIcaller(url, id, endpoint){
+  APIcaller(url, endpoint){
     this.responseText = null; // Weird cache issue
-    url = url + id.toString() + endpoint.toString();
     var self = this;
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
         var response = JSON.stringify(JSON.parse(this.responseText));
-        if (endpoint === "/Biography"){
+        if (endpoint === "info"){
+          self.setState({info: response});
+        }
+        else if (endpoint === "bio"){
           self.setState({bio: response});
         }
-        else if (endpoint === "/Contact"){
+        else if (endpoint === "contact"){
           self.setState({contact: response});
         }
       }
@@ -459,8 +466,12 @@ class MemberDisplay extends React.Component {
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
   }
+  selectConstituency(id){
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<ConstituencyDisplay id={id}/>, document.getElementById('root'));
+  }
   render(){
-    var overview = JSON.parse(this.props.resp);
+    var info = JSON.parse(this.state.info);
     var bio = JSON.parse(this.state.bio);
 
 
@@ -473,7 +484,11 @@ class MemberDisplay extends React.Component {
       }
     }
 
-    console.log(bio);
+    if (info == null){
+      return(<p/>);
+    }
+
+    console.log(info);
 
     return(
       <div>
@@ -482,10 +497,10 @@ class MemberDisplay extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock selected">
-            <img style={{border: "0.3em solid #" + overview.value.latestParty.backgroundColour}} src={overview.value.thumbnailUrl} alt={overview.value.nameDisplayAs}></img>
+            <img style={{border: "0.3em solid #" + info.value.latestParty.backgroundColour}} src={info.value.thumbnailUrl} alt={info.value.nameDisplayAs}></img>
             <div>
-              <h1>{overview.value.nameDisplayAs}</h1>
-              <p>{overview.value.nameDisplayAs} has been the the {overview.value.latestParty.name} ({overview.value.latestParty.abbreviation}) MP for {overview.value.latestHouseMembership.membershipFrom} since {Formatters.dateHandler(overview.value.latestHouseMembership.membershipStartDate)}.</p>
+              <h1>{info.value.nameDisplayAs}</h1>
+              <p>{info.value.nameDisplayAs} has been the the {info.value.latestParty.name} ({info.value.latestParty.abbreviation}) MP for <a onClick={() => this.selectConstituency(info.value.latestHouseMembership.membershipFromId)}>{info.value.latestHouseMembership.membershipFrom}</a> since {Formatters.dateHandler(info.value.latestHouseMembership.membershipStartDate)}.</p>
             </div>
           </div>
 
