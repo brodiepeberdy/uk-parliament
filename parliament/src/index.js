@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Footer from './components/Footer.js'
+import Formatters from './js/Formatters.js'
 import './styling.css';
 import 'font-awesome/css/font-awesome.min.css';
 
@@ -19,9 +21,78 @@ class LandingPage extends React.Component {
           <p>Understanding the labrynth of Parliamentary committees, schedules, and rules becomes quickly overwhelmingly. This resource aims to provide a more concise and accessible means of understanding who represents you in Parliament, what theirs views are, and the general proceedings of both Houses.</p>
         </div>
 
+        <div className="contentBlock">
+          <h3>Understanding UK Parliament and the Government</h3>
+          <div className=" info">
+            <iframe width="40%" src="https://www.youtube.com/embed/GbLTwQwXqWc" alt="Video explaining the basic principles of how UK Parliament works."/>
+            <div>
+              <p>The UK (United Kingdom) is divided into 650 constituencies, each represented by
+              an elected MP (Member of Parliament) in the House of Commons, usually representing a specific political
+              party (for example The Conservative Party, The Labour Party, etc.), though they can be Independent.</p>
+              <p>Each constituency elects an MP, and then whichever party in Parliament
+              has the most MPs automatically forms the government, since they have
+              enough MPs to vote in the same way to achieve a majority of votes on matters.
+              Said party's leader becomes the PM (Prime Minister), and they are usually an MP themselves.</p>
+              <p>In the situation that no one party has majority control of the House of Commons, parties will attempt to form a
+              coalition in which multiple parties come to an agreement to share voting power by pooling their MPs' votes.</p>
+              <p>Meanwhile, The House of Lords is an unelected chamber which reviews
+              and suggests amendments to bills from the House of Commons.</p>
+            </div>
+          </div>
+        </div>
+
         <Footer/>
       </div>
     )
+  }
+}
+
+class Button extends React.Component {
+  select(type){
+    console.log(type);
+    if (type === "HoC"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<HoCPage/>, document.getElementById('root'));
+    }
+    else if (type === "HoCMembers"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<HoCMembers/>, document.getElementById('root'));
+    }
+    else if (type === "Icon"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<LandingPage/>, document.getElementById('root'));
+    }
+  }
+  render() {
+    var mystyle = {
+      textAlign: "center",
+      backgroundColor: this.props.background,
+      color: "White",
+      border: "none",
+      width: "25%",
+      padding: "1em",
+      margin: "0 auto",
+      display: "inline-block",
+      cursor: "pointer",
+    };
+    var iconStyle = {};
+    if (this.props.type === "Icon"){
+      var mystyle = {
+        float: "left",
+        textAlign: "center",
+        backgroundColor: this.props.background,
+        color: "White",
+        border: "none",
+        padding: "0.25em",
+        margin: "0 auto",
+        display: "inline-block",
+        cursor: "pointer"
+      };
+      iconStyle = {
+        fontSize: "2.5em"
+      };
+    }
+    return <button type="button" onClick={() => this.select(this.props.type)} style={mystyle}><i style={iconStyle} className={this.props.icon}></i>{this.props.text}</button>;
   }
 }
 
@@ -90,16 +161,6 @@ class Header extends React.Component {
     return (
       <div className="header">
         <h1><Button text="" type="Icon" icon="fa fa-home" background="CornflowerBlue"/>UK Parliament: Who Represents Me?</h1>
-      </div>
-    );
-  }
-}
-
-class Footer extends React.Component {
-  render() {
-    return (
-      <div className="footer">
-        <p>Website Developed by Brodie Peberdy - Parliamentary information licensed under the <a href="https://www.parliament.uk/site-information/copyright-parliament/open-parliament-licence/">Open Parliament License v3.0</a>.</p>
       </div>
     );
   }
@@ -227,30 +288,39 @@ class ConstituencySearchDisplay extends React.Component {
 
 
 class ConstituencySearchSelect extends React.Component {
-  APIcaller(url, id){
+  APIcaller(url, endpoint, id){
     this.responseText = null; // Weird cache issue
-    url = url + id.toString();
+    url = url + endpoint.toString() + id.toString();
     var self = this;
     var xmlhttp = new XMLHttpRequest();
     var self = this;
     xmlhttp.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
         var response = JSON.stringify(JSON.parse(this.responseText));
-        self.displayConstituency(response);
+        if (endpoint == "Location/Constituency/"){
+          self.displayConstituency(response);
+        }
+        else if (endpoint == "Members/"){
+          self.displayMember(response);
+        }
       }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
   }
   selectConstituency(id){
-    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
+    this.APIcaller("https://members-api.parliament.uk/api/", "Location/Constituency/", id);
   }
   displayConstituency(response) {
     ReactDOM.unmountComponentAtNode(document.getElementById('root'));
     ReactDOM.render(<ConstituencyDisplay resp={response}/>, document.getElementById('root'));
   }
   selectMember(id){
-    this.APIcaller("https://members-api.parliament.uk/api/Location/Constituency/", id);
+    this.APIcaller("https://members-api.parliament.uk/api/", "Members/", id);
+  }
+  displayMember(response) {
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<MemberDisplay resp={response}/>, document.getElementById('root'));
   }
   render() {
     var response = JSON.parse(this.props.response);
@@ -259,9 +329,11 @@ class ConstituencySearchSelect extends React.Component {
     return (
       <div className="selected">
         <img style={{border: "0.3em solid #" + response.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={image} alt={response.value.currentRepresentation.member.value.nameDisplayAs}></img>
-          <h1><a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a></h1><br/>
-          Represented by <b><a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a></b>
-          , {response.value.currentRepresentation.member.value.latestParty.name}.
+        <div>
+          <h1><a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a></h1>
+          <h3>Represented by <b><a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a></b>
+          , {response.value.currentRepresentation.member.value.latestParty.name}.</h3>
+        </div>
       </div>);
   }
 }
@@ -291,25 +363,6 @@ class ConstituencyDisplay extends React.Component {
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-  }
-  // Formats dates into a more readable state.
-  dateHandler(text) {
-    const months = [ "January", "February", "March", "April", "May", "June",
-           "July", "August", "September", "October", "November", "December" ];
-    var year = text.substring(0,4);
-    var month = months[parseInt(text.substring(5,7)) - 1];
-    var ordInd = "th";
-    if (text.substring(8,10) === "01" || text.substring(8,10) === "21" || text.substring(8,10) === "31"){
-      ordInd = "st";
-    }
-    else if (text.substring(8,10)[1] === "02" || text.substring(8,10)[1] === "22") {
-      ordInd = "nd";
-    }
-    else if (text.substring(8,10)[1] === "03" || text.substring(8,10)[1] === "23") {
-      ordInd = "rd";
-    }
-    var day = parseInt(text.substring(8,10));
-    return day + ordInd + " " + month + " " + year;
   }
   render() {
     var overview = JSON.parse(this.props.resp);
@@ -344,14 +397,17 @@ class ConstituencyDisplay extends React.Component {
           <div className="contentBlock selected">
             <img style={{border: "0.3em solid #" + overview.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={overview.value.currentRepresentation.member.value.thumbnailUrl} alt={overview.value.currentRepresentation.member.value.nameDisplayAs}></img>
             <h1>{overview.value.name}</h1>
-            <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {this.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
+            <p>{overview.value.currentRepresentation.member.value.nameDisplayAs} has been the the {overview.value.currentRepresentation.member.value.latestParty.name} ({overview.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {overview.value.name} since {Formatters.dateHandler(overview.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
           </div>
           <div className="contentBlock">
             <h3>Previous MPs</h3>
             {representationsForRender.map(rep =>
               <div className="previousMP">
                 <img style={{border: "0.3em solid #" + rep.member.value.latestParty.backgroundColour}} src={rep.member.value.thumbnailUrl} alt={rep.member.value.nameDisplayAs}></img>
-                <p>{rep.member.value.nameDisplayAs} | {rep.member.value.latestParty.name}</p>
+                <div>
+                  <h3>{rep.member.value.nameDisplayAs} | {rep.member.value.latestParty.name}</h3>
+                  <h5>{Formatters.dateHandler(rep.representation.membershipStartDate)} - {Formatters.dateHandler(rep.representation.membershipEndDate)}</h5>
+                </div>
               </div>
             )}
           </div>
@@ -360,7 +416,9 @@ class ConstituencyDisplay extends React.Component {
             {resultsForRender.map(election =>
               <div className="electionResult" style={{border: "0.3em solid #" + election.winningParty.backgroundColour}}>
                 <h3>{election.electionTitle} | <i>{election.result}</i></h3>
-                <p><i>Electorate:</i> <b>{election.electorate}</b> | <i>Turnout:</i> <b>{Math.round((election.turnout / election.electorate) * 1000) / 10 + "%" }</b> | <i>Majority:</i> <b>{election.majority}</b></p>
+                <p><i>Electorate:</i> <b>{election.electorate}</b></p>
+                <p><i>Turnout:</i> <b>{Math.round((election.turnout / election.electorate) * 1000) / 10 + "%" }</b></p>
+                <p><i>Majority:</i> <b>{election.majority}</b></p>
               </div>)}
           </div>
           <div className="contentBlock">
@@ -374,52 +432,93 @@ class ConstituencyDisplay extends React.Component {
   }
 }
 
-class Button extends React.Component {
-  select(type){
-    console.log(type);
-    if (type === "HoC"){
-      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-      ReactDOM.render(<HoCPage/>, document.getElementById('root'));
-    }
-    else if (type === "HoCMembers"){
-      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-      ReactDOM.render(<HoCMembers/>, document.getElementById('root'));
-    }
-    else if (type === "Icon"){
-      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-      ReactDOM.render(<LandingPage/>, document.getElementById('root'));
-    }
+class MemberDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {bio: null, contact: null, representations: null};
+    this.APIcaller("https://members-api.parliament.uk/api/Members/", JSON.parse(this.props.resp).value.id, "/Biography");
+    this.APIcaller("https://members-api.parliament.uk/api/Members/", JSON.parse(this.props.resp).value.id, "/Contact");
+
   }
-  render() {
-    var mystyle = {
-      textAlign: "center",
-      backgroundColor: this.props.background,
-      color: "White",
-      border: "none",
-      width: "25%",
-      padding: "1em",
-      margin: "0 auto",
-      display: "inline-block",
-      cursor: "pointer",
+  APIcaller(url, id, endpoint){
+    this.responseText = null; // Weird cache issue
+    url = url + id.toString() + endpoint.toString();
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        if (endpoint === "/Biography"){
+          self.setState({bio: response});
+        }
+        else if (endpoint === "/Contact"){
+          self.setState({contact: response});
+        }
+      }
     };
-    var iconStyle = {};
-    if (this.props.type === "Icon"){
-      var mystyle = {
-        float: "left",
-        textAlign: "center",
-        backgroundColor: this.props.background,
-        color: "White",
-        border: "none",
-        padding: "0.25em",
-        margin: "0 auto",
-        display: "inline-block",
-        cursor: "pointer"
-      };
-      iconStyle = {
-        fontSize: "2.5em"
-      };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  render(){
+    var overview = JSON.parse(this.props.resp);
+    var bio = JSON.parse(this.state.bio);
+
+
+    var contact = JSON.parse(this.state.contact);
+    var contactsForRender = []
+    if (contact !== null){
+      var contactsNum = contact.value.length;
+      for (var i = 0; i < contactsNum; i++){
+        contactsForRender[i] = contact.value[i];
+      }
     }
-    return <button type="button" onClick={() => this.select(this.props.type)} style={mystyle}><i style={iconStyle} className={this.props.icon}></i>{this.props.text}</button>;
+
+    console.log(bio);
+
+    return(
+      <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="mainContent">
+          <div className="contentBlock selected">
+            <img style={{border: "0.3em solid #" + overview.value.latestParty.backgroundColour}} src={overview.value.thumbnailUrl} alt={overview.value.nameDisplayAs}></img>
+            <div>
+              <h1>{overview.value.nameDisplayAs}</h1>
+              <p>{overview.value.nameDisplayAs} has been the the {overview.value.latestParty.name} ({overview.value.latestParty.abbreviation}) MP for {overview.value.latestHouseMembership.membershipFrom} since {Formatters.dateHandler(overview.value.latestHouseMembership.membershipStartDate)}.</p>
+            </div>
+          </div>
+
+          <div className="contentBlock">
+            <h2>Contact Details</h2>
+
+            {contactsForRender.map(method =>
+              <div className="individualContact">
+                <h3>{method.type}</h3>
+                <p><i>{method.typeDescription}</i></p>
+
+                <div className="details">
+                  <p>{method.line1}</p>
+                  <p>{method.line2}</p>
+                  <p>{method.line3}</p>
+                  <p>{method.line4}</p>
+                  <p>{method.line5}</p>
+                  <p>{method.postcide}</p>
+                </div>
+
+                <div className="details">
+                  <p><a href={"tel:" + method.phone}>{method.phone}</a></p>
+                  <p><a href={"mailto:" + method.email}>{method.email}</a></p>
+                </div>
+
+
+              </div>)}
+          </div>
+
+        </div>
+        <Footer/>
+      </div>
+    );
   }
 }
 

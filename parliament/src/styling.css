@@ -5,7 +5,7 @@
 }
 div {
   padding: 0.05em;
-  margin: 1em;
+  margin: 0.8em;
 }
 
 .header h1 {
@@ -39,26 +39,37 @@ div {
   margin-bottom: 3em;
 }
 
+iframe {
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+
+.info {
+  display:flex;
+  align-items:center;
+}
+
 /* unvisited link */
-a:link {
+.footer a:link {
   color: white;
 }
 /* visited link */
-a:visited {
+.footer  a:visited {
   color: white;
 }
 /* mouse over link */
-a:hover {
+.footer a:hover {
   color: white;
 }
 /* selected link */
-a:active {
+.footer a:active {
   color: white;
 }
 
 .results {
   display: inline-block;
-  padding: 0.5em;
+  padding: 1em;
+  margin-right: 1em;
   list-style-type: none;
   background-color: AliceBlue;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
@@ -79,13 +90,15 @@ a:active {
 
 .selected {
   display: inline-block;
-  padding: 0.10em;
+  padding: 0.1em;
   background-color: AliceBlue;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   border-left: 0.3em solid CornflowerBlue;
   margin: 1em;
   overflow: hidden;
-  width: 60%;
+  width: 70%;
+  display:flex;
+  align-items:center;
 }
 
 .selected a {
@@ -130,7 +143,8 @@ a:active {
 }
 
 .contentBlock {
-  margin: 0.4em;
+  margin: 0.25em;
+  padding: 0.15em;
   border-left: 0.3em solid CornflowerBlue;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   background-color: AliceBlue;
@@ -144,6 +158,12 @@ a:active {
 .contentBlock h3 {
   padding-left: 0.75em;
 }
+.contentBlock h5 {
+  padding-left: 1em;
+}
+.contentBlock h2 {
+  padding-left: 0.6em;
+}
 
 
 
@@ -154,14 +174,16 @@ a:active {
   border: 0.3em solid;
   border-radius: 1em 1em 1em 1em;
   background-color: AliceBlue;
-  padding: 0.25em;
+  line-height: 10%;
+  width: 50%;
 }
 
 .previousMP {
   display: inline-block;
-  background-color: AliceBlue;
   overflow: hidden;
-  width: 80%;
+  width: 50%;
+  display:flex;
+  align-items:center;
 }
 .previousMP a {
   color: CornflowerBlue;
@@ -178,8 +200,33 @@ a:active {
   border-radius: 50% 50% 50% 50%;
   height: 10em;
   width: 10em;
-
 }
-.previousMP p {
-  float: left;
+
+.individualContact {
+  display: inline-block;
+  padding: 0.1em;
+  background-color: LightGrey;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-left: 0.2em solid CornflowerBlue;
+  overflow: hidden;
+  width: 80%;
+}
+.details {
+  line-height: 10%;
+}
+/* unvisited link */
+.details a:link {
+  color: CornflowerBlue;
+}
+/* visited link */
+.details  a:visited {
+  color: CornflowerBlue;
+}
+/* mouse over link */
+.details a:hover {
+  color: DarkGrey;
+}
+/* selected link */
+.details a:active {
+  color: Blue;
 }
