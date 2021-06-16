@@ -71,7 +71,7 @@ iframe {
   padding: 1em;
   margin-right: 1em;
   list-style-type: none;
-  background-color: AliceBlue;
+  background-color: #dae9f7;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   border-left: 0.3em solid CornflowerBlue;
   float: left;
@@ -91,7 +91,7 @@ iframe {
 .selected {
   display: inline-block;
   padding: 0.1em;
-  background-color: AliceBlue;
+  background-color: #dae9f7;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   border-left: 0.3em solid CornflowerBlue;
   margin: 1em;
@@ -147,7 +147,7 @@ iframe {
   padding: 0.15em;
   border-left: 0.3em solid CornflowerBlue;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
-  background-color: AliceBlue;
+  background-color: #dae9f7;
 }
 .contentBlock p {
   padding-left: 1em;
@@ -173,7 +173,8 @@ iframe {
   margin: 0.8em;
   border: 0.3em solid;
   border-radius: 1em 1em 1em 1em;
-  background-color: AliceBlue;
+  background-color: MintCream;
+  color: DarkBlue;
   line-height: 10%;
   width: 50%;
 }
@@ -202,18 +203,7 @@ iframe {
   width: 10em;
 }
 
-.individualContact {
-  display: inline-block;
-  padding: 0.1em;
-  background-color: LightGrey;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
-  border-left: 0.2em solid CornflowerBlue;
-  overflow: hidden;
-  width: 80%;
-}
-.details {
-  line-height: 10%;
-}
+
 /* unvisited link */
 .details a:link {
   color: CornflowerBlue;
@@ -229,4 +219,32 @@ iframe {
 /* selected link */
 .details a:active {
   color: Blue;
+}
+.items {
+  line-height: 0%;
+  display: flex-wrap;
+}
+.individualItem {
+  display: inline-block;
+  background-color: Gainsboro;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-left: 0.6em solid CornflowerBlue;
+  overflow: auto;
+  line-height: 0%;
+  padding-right: 0.5em;
+  vertical-align: top;
+}
+.row {
+  display:flex;
+  align-items:center;
+}
+.seatsVisual {
+  line-height: 75%;
+  word-spacing: -3px;
+  padding: 0.5em;
+  margin: 1em;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border: 0.1em solid CornflowerBlue;
+  background-color: White;
+  width: 60%;
 }

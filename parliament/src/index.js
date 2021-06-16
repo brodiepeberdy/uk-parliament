@@ -5,7 +5,16 @@ import Formatters from './js/Formatters.js'
 import './styling.css';
 import 'font-awesome/css/font-awesome.min.css';
 
-
+// Header component for the top of every page. Has a "home" button which returns the user to the landing page, and the title of the website.
+class Header extends React.Component {
+  render() {
+    return (
+      <div className="header">
+        <h1><Button text="" type="Icon" icon="fa fa-home" background="CornflowerBlue"/>UK Parliament: Who Represents Me?</h1>
+      </div>
+    );
+  }
+}
 
 // Gathers the components for the initial landing page.
 class LandingPage extends React.Component {
@@ -17,7 +26,12 @@ class LandingPage extends React.Component {
         </div>
 
         <div className="contentBlock">
-          <LandingButtons/>
+          <div className="row">
+            <Button text=" House of Commons" type="HoC" icon="fa fa-bank" background="ForestGreen"/>
+            <Button text=" House of Lords" type="HoL" icon="fa fa-bank" background="FireBrick"/>
+            <Button text=" Bills" type="PB" icon="fa fa-book" background="Indigo"/>
+            <Button text=" Committees" type="PC" icon="fa fa-users" background="SteelBlue"/>
+          </div>
           <p>Understanding the labrynth of Parliamentary committees, schedules, and rules becomes quickly overwhelmingly. This resource aims to provide a more concise and accessible means of understanding who represents you in Parliament, what theirs views are, and the general proceedings of both Houses.</p>
         </div>
 
@@ -58,6 +72,14 @@ class Button extends React.Component {
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCMembers/>, document.getElementById('root'));
     }
+    else if (type === "HoCParties"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<HoCParties/>, document.getElementById('root'));
+    }
+    else if (type === "PC"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<CommitteesPage/>, document.getElementById('root'));
+    }
     else if (type === "Icon"){
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<LandingPage/>, document.getElementById('root'));
@@ -69,11 +91,13 @@ class Button extends React.Component {
       backgroundColor: this.props.background,
       color: "White",
       border: "none",
-      width: "25%",
+      width: "20%",
       padding: "1em",
       margin: "0 auto",
       display: "inline-block",
       cursor: "pointer",
+      borderRadius: "0.3em 0.3em 0.3em 0.3em",
+      borderBottom: "0.1em solid Gray"
     };
     var iconStyle = {};
     if (this.props.type === "Icon"){
@@ -96,20 +120,6 @@ class Button extends React.Component {
   }
 }
 
-// Row of buttons for navigating from the landing page.
-class LandingButtons extends React.Component {
-  render() {
-    return (
-      <div>
-        <Button text=" House of Commons" type="HoC" icon="fa fa-bank" background="ForestGreen"/>
-        <Button text=" House of Lords" type="HoL" icon="fa fa-bank" background="FireBrick"/>
-        <Button text=" Parliamentary Bills" type="PB" icon="fa fa-book" background="Indigo"/>
-        <Button text=" Parliamentary Committees" type="PC" icon="fa fa-users" background="SteelBlue"/>
-      </div>
-    );
-  }
-}
-
 class HoCPage extends React.Component {
   render() {
     return (
@@ -119,24 +129,17 @@ class HoCPage extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock">
-            <HoCButtons/>
+            <div className="row">
+              <Button text=" Members" type="HoCMembers" icon="fa fa-user" background="ForestGreen"/>
+              <Button text=" Parties" type="HoCParties" icon="fa fa-users" background="MediumSeaGreen"/>
+              <Button text=" Votes" type="HoCVotes" icon="fa fa-tasks" background="DarkGoldenRod"/>
+              <Button text=" Oral Votes and Motions" type="Oral" icon="fa fa-comments" background="SteelBlue"/>
+            </div>
           </div>
         </div>
         <Footer/>
       </div>
     )
-  }
-}
-
-class HoCButtons extends React.Component {
-  render() {
-    return (
-      <div>
-        <Button text=" Members" type="HoCMembers" icon="fa fa-users" background="ForestGreen"/>
-        <Button text=" Votes" type="HoCVotes" icon="fa fa-tasks" background="DarkGoldenRod"/>
-        <Button text=" Oral Votes and Motions" type="Oral" icon="fa fa-comments" background="SteelBlue"/>
-      </div>
-    );
   }
 }
 
@@ -156,15 +159,7 @@ class HoCMembers extends React.Component {
   }
 }
 
-class Header extends React.Component {
-  render() {
-    return (
-      <div className="header">
-        <h1><Button text="" type="Icon" icon="fa fa-home" background="CornflowerBlue"/>UK Parliament: Who Represents Me?</h1>
-      </div>
-    );
-  }
-}
+
 
 class Search extends React.Component {
   constructor(props) {
@@ -365,6 +360,10 @@ class ConstituencyDisplay extends React.Component {
     ReactDOM.unmountComponentAtNode(document.getElementById('root'));
     ReactDOM.render(<MemberDisplay id={id}/>, document.getElementById('root'));
   }
+  viewParties(){
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<HoCParties/>, document.getElementById('root'));
+  }
   render() {
     var info = JSON.parse(this.state.info);
     var location = "";
@@ -400,8 +399,10 @@ class ConstituencyDisplay extends React.Component {
         <div className="mainContent">
           <div className="contentBlock selected">
             <img style={{border: "0.3em solid #" + info.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={info.value.currentRepresentation.member.value.thumbnailUrl} alt={info.value.currentRepresentation.member.value.nameDisplayAs}></img>
-            <h1>{info.value.name}</h1>
-            <p><a onClick={() => this.selectMember(info.value.currentRepresentation.member.value.id)}>{info.value.currentRepresentation.member.value.nameDisplayAs}</a> has been the the {info.value.currentRepresentation.member.value.latestParty.name} ({info.value.currentRepresentation.member.value.latestParty.abbreviation}) MP for {info.value.name} since {Formatters.dateHandler(info.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
+            <div>
+              <h1>{info.value.name}</h1>
+              <p><a onClick={() => this.selectMember(info.value.currentRepresentation.member.value.id)}>{info.value.currentRepresentation.member.value.nameDisplayAs}</a> has been the the <a onClick={() => this.viewParties()}>{info.value.currentRepresentation.member.value.latestParty.name} ({info.value.currentRepresentation.member.value.latestParty.abbreviation})</a> MP for {info.value.name} since {Formatters.dateHandler(info.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
+            </div>
           </div>
           <div className="contentBlock">
             <h3>Previous MPs</h3>
@@ -418,7 +419,7 @@ class ConstituencyDisplay extends React.Component {
           <div className="contentBlock">
             <h3>Election History of {info.value.name}</h3>
             {resultsForRender.map(election =>
-              <div className="electionResult" style={{border: "0.3em solid #" + election.winningParty.backgroundColour}}>
+              <div className="individualItem" style={{borderLeft: "0.5em solid #" + election.winningParty.backgroundColour}}>
                 <h3>{election.electionTitle} | <i>{election.result}</i></h3>
                 <p><i>Electorate:</i> <b>{election.electorate}</b></p>
                 <p><i>Turnout:</i> <b>{Math.round((election.turnout / election.electorate) * 1000) / 10 + "%" }</b></p>
@@ -472,8 +473,17 @@ class MemberDisplay extends React.Component {
   }
   render(){
     var info = JSON.parse(this.state.info);
-    var bio = JSON.parse(this.state.bio);
 
+    var bio = JSON.parse(this.state.bio);
+    var committeesForRender = []
+    if (bio !== null){
+      var committeesNum = bio.value.committeeMemberships.length;
+      for (var i = 0; i < committeesNum; i++){
+        committeesForRender[i] = bio.value.committeeMemberships[i];
+      }
+    }
+
+    console.log(committeesForRender);
 
     var contact = JSON.parse(this.state.contact);
     var contactsForRender = []
@@ -488,7 +498,7 @@ class MemberDisplay extends React.Component {
       return(<p/>);
     }
 
-    console.log(info);
+    console.log(bio);
 
     return(
       <div>
@@ -506,24 +516,40 @@ class MemberDisplay extends React.Component {
 
           <div className="contentBlock">
             <h2>Contact Details</h2>
+            <div className="items">
+              {contactsForRender.map(method =>
+                <div className="individualItem">
+                  <h3>{method.type}</h3>
+                  <p><i>{method.typeDescription}</i></p>
 
-            {contactsForRender.map(method =>
-              <div className="individualContact">
-                <h3>{method.type}</h3>
-                <p><i>{method.typeDescription}</i></p>
+                  <div className="row">
+                    <div className="details">
+                      <p>{method.line1}</p>
+                      <p>{method.line2}</p>
+                      <p>{method.line3}</p>
+                      <p>{method.line4}</p>
+                      <p>{method.line5}</p>
+                      <p>{method.postcode}</p>
+                    </div>
 
-                <div className="details">
-                  <p>{method.line1}</p>
-                  <p>{method.line2}</p>
-                  <p>{method.line3}</p>
-                  <p>{method.line4}</p>
-                  <p>{method.line5}</p>
-                  <p>{method.postcide}</p>
-                </div>
+                    <div className="details">
+                      <p><a href={"tel:" + method.phone}>{method.phone}</a></p>
+                      <p><a href={"mailto:" + method.email}>{method.email}</a></p>
+                    </div>
+                  </div>
+                </div>)}
+              </div>
 
-                <div className="details">
-                  <p><a href={"tel:" + method.phone}>{method.phone}</a></p>
-                  <p><a href={"mailto:" + method.email}>{method.email}</a></p>
+          </div>
+
+          <div className="contentBlock">
+            <h2>Parliamentary Career</h2>
+            {committeesForRender.map(committee =>
+              <div className="individualItem">
+                <h3>{committee.name}</h3>
+                <h5>{Formatters.dateHandler(committee.startDate)} - {Formatters.dateHandler(committee.endDate)}</h5>
+
+                <div className="row">
                 </div>
 
 
@@ -532,6 +558,99 @@ class MemberDisplay extends React.Component {
 
         </div>
         <Footer/>
+      </div>
+    );
+  }
+}
+
+class HoCParties extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {stateHoC: null, stateHoL: null, activePartiesHoC: null, activePartiesHoL: null};
+    var currentdate = new Date();
+    var dateIn = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1) + "-" + currentdate.getDate() + "T00:00:00";
+    this.APIcaller("https://members-api.parliament.uk/api/Parties/StateOfTheParties/" + "1" + "/" + dateIn, "stateHoC");
+    // this.APIcaller("https://members-api.parliament.uk/api/Parties/StateOfTheParties/" + "2" + "/" + dateIn, "stateHoL");
+  }
+  APIcaller(url, endpoint){
+    this.responseText = null; // Weird cache issue
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        if (endpoint === "stateHoC"){
+          self.setState({stateHoC: response});
+        }
+        else if (endpoint === "stateHoL"){
+          self.setState({stateHoL: response});
+        }
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  render() {
+    var stateHoC = JSON.parse(this.state.stateHoC);
+    if (stateHoC === null) {
+      return (<p/>);
+    }
+
+    var elements = [];
+    var visualMembers;
+
+    for (var i = 0; i < stateHoC.items.length; i ++) {
+      visualMembers = "";
+      for (var j = 0; j < stateHoC.items[i].value.male + stateHoC.items[i].value.female + stateHoC.items[i].value.nonBinary; j ++) {
+        visualMembers = visualMembers + "◼" + " ";
+      }
+      elements[i] = <span style={{color: "#" + stateHoC.items[i].value.party.backgroundColour}}>{visualMembers}</span>
+    }
+
+    if (elements === null) {
+      return (<p/>);
+    }
+
+    console.log(visualMembers);
+    return(
+      <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="mainContent">
+          <div className="contentBlock">
+            <h3>State of the Parties in the House of Commons</h3>
+            <p>Most MPs (Members of Parliament) are members of political parties, and so the makeup of the House of Commons is determined by whichever Party has a plurality of MPs.</p>
+            <p className="seatsVisual">{elements.map(item => <>{item}</>)}</p>
+
+          </div>
+          <div className="contentBlock">
+            <h3>Parties</h3>
+            {stateHoC.items.map(item =>
+              <div className="individualItem" style={{borderLeft: "0.5em solid #" + item.value.party.backgroundColour}}>
+                <h3>{item.value.party.name} ({item.value.party.abbreviation})</h3>
+                <div className="row">
+                  <p>Male: {item.value.male}</p>
+                  <p>Female: {item.value.female}</p>
+                  <p>Non-Binary: {item.value.nonBinary}</p>
+                </div>
+              </div>)}
+          </div>
+        </div>
+        <Footer/>
+      </div>
+    );
+  }
+}
+
+
+
+
+class CommitteesPage extends React.Component {
+  render() {
+    console.log(this.state.stateHoC);
+    return(
+      <div>
       </div>
     );
   }
