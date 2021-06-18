@@ -63,7 +63,6 @@ class LandingPage extends React.Component {
 
 class Button extends React.Component {
   select(type){
-    console.log(type);
     if (type === "HoC"){
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCPage/>, document.getElementById('root'));
@@ -129,6 +128,7 @@ class HoCPage extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock">
+            <h3 className="centreTitle">House of Commons</h3>
             <div className="row">
               <Button text=" Members" type="HoCMembers" icon="fa fa-user" background="ForestGreen"/>
               <Button text=" Parties" type="HoCParties" icon="fa fa-users" background="MediumSeaGreen"/>
@@ -263,7 +263,6 @@ class ConstituencySearchDisplay extends React.Component {
           </div>);
       }
       else {
-        console.log(JSON.parse(this.state.response));
         return (
           <div>
             <ul className="results">
@@ -380,7 +379,6 @@ class ConstituencyDisplay extends React.Component {
     var representations = JSON.parse(this.state.representations);
     var representationsForRender = [];
     if (representations !== null){
-      console.log(representations);
       var numRepresentations = representations.value.length;
       for (var i = 1; i < numRepresentations; i++){
         representationsForRender[i] = representations.value[i];
@@ -473,17 +471,25 @@ class MemberDisplay extends React.Component {
   }
   render(){
     var info = JSON.parse(this.state.info);
-
     var bio = JSON.parse(this.state.bio);
-    var committeesForRender = []
+    var houses = [["House of Commons", "Red"], ["House of Lords", "Green"]];
+    var committeesForRender = []; var partiesForRender = [];
+    var govPostsForRender = []; var oppPostsForRender = [];
+
     if (bio !== null){
-      var committeesNum = bio.value.committeeMemberships.length;
-      for (var i = 0; i < committeesNum; i++){
+      for (var i = 0; i < bio.value.committeeMemberships.length; i++){
         committeesForRender[i] = bio.value.committeeMemberships[i];
       }
+      for (var i = 0; i < bio.value.partyAffiliations.length; i++){
+        partiesForRender[i] = bio.value.partyAffiliations[i];
+      }
+      for (var i = 0; i < bio.value.governmentPosts.length; i++){
+        govPostsForRender[i] = bio.value.governmentPosts[i];
+      }
+      for (var i = 0; i < bio.value.oppositionPosts.length; i++){
+        oppPostsForRender[i] = bio.value.oppositionPosts[i];
+      }
     }
-
-    console.log(committeesForRender);
 
     var contact = JSON.parse(this.state.contact);
     var contactsForRender = []
@@ -544,16 +550,58 @@ class MemberDisplay extends React.Component {
 
           <div className="contentBlock">
             <h2>Parliamentary Career</h2>
-            {committeesForRender.map(committee =>
-              <div className="individualItem">
-                <h3>{committee.name}</h3>
-                <h5>{Formatters.dateHandler(committee.startDate)} - {Formatters.dateHandler(committee.endDate)}</h5>
 
-                <div className="row">
-                </div>
+            <div className="careerSection">
+              <h3>Party Affiliations</h3>
+              {partiesForRender.map(party =>
+                  <div className="individualItem">
+                    <h3>{party.name}</h3>
+                    <h5>{Formatters.dateHandler(party.startDate)} - {Formatters.dateHandler(party.endDate)}</h5>
+                </div>)}
+            </div>
+
+            <div className="careerSection">
+              <h3>Government Posts</h3>
+              {govPostsForRender.map(post =>
+                  <div className="individualItem" style={{borderLeft: "0.6em solid " + houses[post.house - 1][1]}}>
+                    <h3 className="centreTitle">{post.name}</h3>
+                    <div className="row">
+                      <h5>• {houses[post.house - 1][0]}</h5>
+                      <h5>• {Formatters.dateHandler(post.startDate)} - {Formatters.dateHandler(post.endDate)}</h5>
+                    </div>
+                </div>)}
+            </div>
+
+            <div className="careerSection">
+              <h3>Opposition Posts</h3>
+              {oppPostsForRender.map(post =>
+                  <div className="individualItem" style={{borderLeft: "0.6em solid " + houses[post.house - 1][1]}}>
+                    <h3 className="centreTitle">{post.name}</h3>
+                    <div className="row">
+                      <h5>• {houses[post.house - 1][0]}</h5>
+                      <h5>• {Formatters.dateHandler(post.startDate)} - {Formatters.dateHandler(post.endDate)}</h5>
+                    </div>
+                </div>)}
+            </div>
 
 
-              </div>)}
+
+
+
+            <div className="careerSection">
+              <h3>Committee Memberships</h3>
+              {committeesForRender.map(committee =>
+                <div className="individualItem" style={{borderLeft: "0.6em solid " + houses[committee.house - 1][1]}}>
+                  <h3 className="centreTitle">{committee.name}</h3>
+                  <div className="row">
+                    <h5>• {houses[committee.house - 1][0]}</h5>
+                    <h5>• {Formatters.dateHandler(committee.startDate)} - {Formatters.dateHandler(committee.endDate)}</h5>
+                  </div>
+                </div>)}
+              </div>
+
+
+
           </div>
 
         </div>
@@ -611,7 +659,6 @@ class HoCParties extends React.Component {
       return (<p/>);
     }
 
-    console.log(visualMembers);
     return(
       <div>
         <div>
@@ -619,21 +666,19 @@ class HoCParties extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock">
-            <h3>State of the Parties in the House of Commons</h3>
+            <h3 className="centreTitle">State of the Parties in the House of Commons</h3>
             <p>Most MPs (Members of Parliament) are members of political parties, and so the makeup of the House of Commons is determined by whichever Party has a plurality of MPs.</p>
             <p className="seatsVisual">{elements.map(item => <>{item}</>)}</p>
 
           </div>
           <div className="contentBlock">
-            <h3>Parties</h3>
+            <h3 className="centreTitle">Parties</h3>
             {stateHoC.items.map(item =>
               <div className="individualItem" style={{borderLeft: "0.5em solid #" + item.value.party.backgroundColour}}>
                 <h3>{item.value.party.name} ({item.value.party.abbreviation})</h3>
-                <div className="row">
-                  <p>Male: {item.value.male}</p>
-                  <p>Female: {item.value.female}</p>
-                  <p>Non-Binary: {item.value.nonBinary}</p>
-                </div>
+                <p>Male: {item.value.male}</p>
+                <p>Female: {item.value.female}</p>
+                <p>Non-Binary: {item.value.nonBinary}</p>
               </div>)}
           </div>
         </div>
@@ -648,7 +693,6 @@ class HoCParties extends React.Component {
 
 class CommitteesPage extends React.Component {
   render() {
-    console.log(this.state.stateHoC);
     return(
       <div>
       </div>
