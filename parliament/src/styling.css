@@ -74,6 +74,7 @@ iframe {
   background-color: #dae9f7;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   border-left: 0.3em solid CornflowerBlue;
+  border-bottom: 0.1em solid LightBlue;
   float: left;
   width: 20%;
 }
@@ -94,6 +95,7 @@ iframe {
   background-color: #dae9f7;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   border-left: 0.3em solid CornflowerBlue;
+  border-bottom: 0.1em solid LightBlue;
   margin: 1em;
   overflow: hidden;
   width: 70%;
@@ -146,6 +148,7 @@ iframe {
   margin: 0.25em;
   padding: 0.15em;
   border-left: 0.3em solid CornflowerBlue;
+  border-bottom: 0.1em solid LightBlue;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   background-color: #dae9f7;
 }
@@ -163,6 +166,14 @@ iframe {
 }
 .contentBlock h2 {
   padding-left: 0.6em;
+}
+
+.divisionBlock {
+  margin: 0.25em;
+  padding: 0.15em;
+  border-left: 0.3em solid CornflowerBlue;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  background-color: #dae9f7;
 }
 
 
@@ -224,16 +235,70 @@ iframe {
   line-height: 0%;
   display: flex-wrap;
 }
+
 .individualItem {
   display: inline-block;
-  background-color: Gainsboro;
+  background-color: #ededed;
   border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-bottom: 0.1em solid Gainsboro;
   border-left: 0.6em solid CornflowerBlue;
   overflow: auto;
-  line-height: 0%;
-  padding-right: 0.5em;
+  width: 45%;
+  padding-left: 0.5em;
+  vertical-align: top;
+  text-align: center;
+}
+.billResult {
+  display: inline-block;
+  background-color: #ededed;
+  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-bottom: 0.1em solid Gainsboro;
+  border-left: 0.6em solid CornflowerBlue;
+  height: 14em;
+  width: 45%;
+  padding-left: 0.5em;
   vertical-align: top;
 }
+.billResult:hover {
+  cursor: pointer;
+  background-color: Gainsboro;
+  border-left: 0.6em solid DarkBlue;
+  border-bottom: 0.1em solid DarkGrey;
+}
+.billResult h4 {
+  text-align: center;
+  text-transform: uppercase;
+}
+.billResult h5 {
+  text-align: center;
+}
+.votingBlock {
+  text-align:center;
+  height: auto;
+}
+.voting {
+  display: inline-flex;
+  align-items:center;
+}
+.nayeVote i {
+  display: inline-block;
+  border-radius: 60px;
+  box-shadow: 0px 0px 2px Red;
+  color: Crimson;
+  background-color: LightPink;
+  padding: 0.5em 0.6em;
+}
+.ayeVote i {
+  display: inline-block;
+  border-radius: 60px;
+  box-shadow: 0px 0px 2px ForestGreen;
+  color: Green;
+  background-color: MediumAquamarine;
+  color: Green;
+  padding: 0.5em 0.6em;
+}
+
+
 .careerSection {
   padding: 0.05em;
   background-color: AliceBlue;

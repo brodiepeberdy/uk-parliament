@@ -29,8 +29,6 @@ class LandingPage extends React.Component {
           <div className="row">
             <Button text=" House of Commons" type="HoC" icon="fa fa-bank" background="ForestGreen"/>
             <Button text=" House of Lords" type="HoL" icon="fa fa-bank" background="FireBrick"/>
-            <Button text=" Bills" type="PB" icon="fa fa-book" background="Indigo"/>
-            <Button text=" Committees" type="PC" icon="fa fa-users" background="SteelBlue"/>
           </div>
           <p>Understanding the labrynth of Parliamentary committees, schedules, and rules becomes quickly overwhelmingly. This resource aims to provide a more concise and accessible means of understanding who represents you in Parliament, what theirs views are, and the general proceedings of both Houses.</p>
         </div>
@@ -75,6 +73,10 @@ class Button extends React.Component {
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCParties/>, document.getElementById('root'));
     }
+    else if (type === "HoCVotes"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<HoCVotes/>, document.getElementById('root'));
+    }
     else if (type === "PC"){
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<CommitteesPage/>, document.getElementById('root'));
@@ -91,8 +93,8 @@ class Button extends React.Component {
       color: "White",
       border: "none",
       width: "20%",
-      padding: "1em",
       margin: "0 auto",
+      height: "4em",
       display: "inline-block",
       cursor: "pointer",
       borderRadius: "0.3em 0.3em 0.3em 0.3em",
@@ -133,7 +135,7 @@ class HoCPage extends React.Component {
               <Button text=" Members" type="HoCMembers" icon="fa fa-user" background="ForestGreen"/>
               <Button text=" Parties" type="HoCParties" icon="fa fa-users" background="MediumSeaGreen"/>
               <Button text=" Votes" type="HoCVotes" icon="fa fa-tasks" background="DarkGoldenRod"/>
-              <Button text=" Oral Votes and Motions" type="Oral" icon="fa fa-comments" background="SteelBlue"/>
+              <Button text=" Oral Questions and Motions" type="Oral" icon="fa fa-comments" background="SteelBlue"/>
             </div>
           </div>
         </div>
@@ -158,6 +160,8 @@ class HoCMembers extends React.Component {
     )
   }
 }
+
+
 
 
 
@@ -548,6 +552,10 @@ class MemberDisplay extends React.Component {
 
           </div>
 
+          <div className="careerSection">
+            <h3>Voting Record</h3>
+          </div>
+
           <div className="contentBlock">
             <h2>Parliamentary Career</h2>
 
@@ -643,6 +651,19 @@ class HoCParties extends React.Component {
     if (stateHoC === null) {
       return (<p/>);
     }
+    var partyGenders = [];
+    for (var i = 0; i < stateHoC.items.length; i ++) {
+      partyGenders[i] = [];
+      if (stateHoC.items[i].value.male > 0) {
+        partyGenders[i].push("Male: " + stateHoC.items[i].value.male);
+      }
+      if (stateHoC.items[i].value.female > 0) {
+        partyGenders[i].push("Female: " + stateHoC.items[i].value.female);
+      }
+      if (stateHoC.items[i].value.male > 0) {
+        partyGenders[i].push("Non-Binary: " + stateHoC.items[i].value.nonBinary);
+      }
+    }
 
     var elements = [];
     var visualMembers;
@@ -676,9 +697,35 @@ class HoCParties extends React.Component {
             {stateHoC.items.map(item =>
               <div className="individualItem" style={{borderLeft: "0.5em solid #" + item.value.party.backgroundColour}}>
                 <h3>{item.value.party.name} ({item.value.party.abbreviation})</h3>
-                <p>Male: {item.value.male}</p>
-                <p>Female: {item.value.female}</p>
-                <p>Non-Binary: {item.value.nonBinary}</p>
+
+                {(() => {
+                  if (item.value.male > 0) {
+                    return (
+                      <p>Male: {item.value.male}</p>
+                    )
+                  }
+                })()}
+                {(() => {
+                  if (item.value.female > 0) {
+                    return (
+                      <p>Female: {item.value.female}</p>
+                    )
+                  }
+                })()}
+                {(() => {
+                  if (item.value.nonBinary > 0) {
+                    return (
+                      <p>Non-Binary: {item.value.nonBinary}</p>
+                    )
+                  }
+                })()}
+                {(() => {
+                  if (item.value.male === 0 && item.value.female === 0 && item.value.nonBinary === 0) {
+                    return (
+                      <p>There are no members in this group</p>
+                    )
+                  }
+                })()}
               </div>)}
           </div>
         </div>
@@ -688,7 +735,116 @@ class HoCParties extends React.Component {
   }
 }
 
+class HoCVotes extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {divisionsResults: null};
+    this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search/", "search");
+  }
+  APIcaller(url, endpoint){
+    this.responseText = null; // Weird cache issue
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        if (endpoint === "search"){
+          self.setState({divisionsResults: response});
+        }
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  selectBill(id) {
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<BillDisplay id={id}/>, document.getElementById('root'));
+  }
+  render() {
+    var divisions = JSON.parse(this.state.divisionsResults);
+    console.log(divisions);
 
+    if (divisions === null) {
+      return (<p></p>);
+    }
+
+    var divisionsForRender = [];
+    for (var i = 0; i < divisions.length; i ++) {
+      divisionsForRender[i] = divisions[i];
+    }
+
+    return(
+      <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="mainContent">
+          <div className="contentBlock">
+            <h3 className="centreTitle">View Past Votes in the House of Commons</h3>
+          </div>
+          {divisionsForRender.map(division =>
+              <div className="billResult" onClick={() => this.selectBill(division.DivisionId)}>
+                <h4>{division.Title}</h4>
+                <span></span>
+                <h5>Division {division.Number}: {Formatters.dateHandler(division.Date)}</h5>
+                <div className="votingBlock">
+                  <div className="voting ayeVote">
+                    <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.AyeCount}</p>
+                  </div>
+                  <div className="voting nayeVote">
+                    <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.NoCount}</p>
+                  </div>
+                </div>
+
+
+            </div>)}
+        </div>
+        <Footer/>
+      </div>
+    );
+  }
+}
+
+class BillDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {division: null};
+    this.APIcaller("https://commonsvotes-api.parliament.uk/data/division/" + this.props.id + ".json");
+  }
+  APIcaller(url, endpoint){
+    this.responseText = null; // Weird cache issue
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        self.setState({division: response});
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  render() {
+    var division = JSON.parse(this.state.division);
+    if (division === null) {
+      return (<p></p>);
+    }
+    console.log(division);
+    return(
+      <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="mainContent">
+          <div className="contentBlock">
+            <h3 className="centreTitle">Bill Name Here</h3>
+          </div>
+        </div>
+        <Footer/>
+      </div>
+    );
+  }
+}
 
 
 class CommitteesPage extends React.Component {
