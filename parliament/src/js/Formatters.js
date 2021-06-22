@@ -1,7 +1,7 @@
 class Formatters {
   static dateHandler(text) {
     // A null input means there isn't a date, i.e. the "present".
-    if (text === null){
+    if (text === null || text === undefined){
       return "Present";
     }
     const months = [ "January", "February", "March", "April", "May", "June",

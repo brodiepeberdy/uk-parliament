@@ -76,7 +76,7 @@ iframe {
   border-left: 0.3em solid CornflowerBlue;
   border-bottom: 0.1em solid LightBlue;
   float: left;
-  width: 20%;
+  width: 40vh;
 }
 
 .results a {
@@ -98,7 +98,7 @@ iframe {
   border-bottom: 0.1em solid LightBlue;
   margin: 1em;
   overflow: hidden;
-  width: 70%;
+  width: 100vh;
   display:flex;
   align-items:center;
 }
@@ -232,8 +232,7 @@ iframe {
   color: Blue;
 }
 .items {
-  line-height: 0%;
-  display: flex-wrap;
+  display: flex-block;
 }
 
 .individualItem {
@@ -243,7 +242,7 @@ iframe {
   border-bottom: 0.1em solid Gainsboro;
   border-left: 0.6em solid CornflowerBlue;
   overflow: auto;
-  width: 45%;
+  width: 70vh;
   padding-left: 0.5em;
   vertical-align: top;
   text-align: center;
@@ -254,8 +253,8 @@ iframe {
   border-radius: 0.3em 0.3em 0.3em 0.3em;
   border-bottom: 0.1em solid Gainsboro;
   border-left: 0.6em solid CornflowerBlue;
-  height: 14em;
-  width: 45%;
+  height: 40vh;
+  width: 70vh;
   padding-left: 0.5em;
   vertical-align: top;
 }
@@ -297,6 +296,10 @@ iframe {
   color: Green;
   padding: 0.5em 0.6em;
 }
+.billTitle {
+  text-align: center;
+  text-transform: uppercase;
+}
 
 
 .careerSection {
@@ -320,4 +323,40 @@ iframe {
   border: 0.1em solid CornflowerBlue;
   background-color: White;
   width: 60%;
+}
+
+.expandable {
+  text-align: center;
+  line-height: 0;
+}
+.nav i {
+  display: inline-block;
+  border-radius: 60px;
+  background-color: LightBlue;
+  padding: 0.5em 0.6em;
+}
+.nav i:hover {
+  text-shadow: 1px 1px CornflowerBlue;
+  color: Black;
+  cursor: pointer;
+}
+.expandable:hover {
+  text-shadow: 1px 1px CornflowerBlue;
+  color: Black;
+  cursor: pointer;
+}
+.votingMember {
+  width: 60vh;
+  height: 20vh;
+  overflow: none;
+}
+.votingMember a {
+  color: Black;
+  cursor: pointer;
+}
+.votingMember:hover {
+  color: DarkBlue;
+  cursor: pointer;
+  text-decoration: underline;
+  background-color: Gainsboro;
 }

@@ -442,11 +442,11 @@ class ConstituencyDisplay extends React.Component {
 class MemberDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {info: null, bio: null, contact: null, representations: null};
+    this.state = {info: null, bio: null, contact: null, representations: null, voting: null, viewVoting: false, votingPage: 0};
     this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id, "info");
     this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Biography", "bio");
     this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Contact", "contact");
-
+    this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1", "votingNext");
   }
   APIcaller(url, endpoint){
     this.responseText = null; // Weird cache issue
@@ -464,6 +464,14 @@ class MemberDisplay extends React.Component {
         else if (endpoint === "contact"){
           self.setState({contact: response});
         }
+        else if (endpoint === "votingNext"){
+          self.setState({voting: response, votingPage: self.state.votingPage + 1});
+        }
+        else if (endpoint === "votingPrev"){
+          if (self.state.votingPage - 1 !== -1) {
+            self.setState({voting: response, votingPage: self.state.votingPage - 1});
+          }
+        }
       }
     };
     xmlhttp.open("GET", url, true);
@@ -472,6 +480,10 @@ class MemberDisplay extends React.Component {
   selectConstituency(id){
     ReactDOM.unmountComponentAtNode(document.getElementById('root'));
     ReactDOM.render(<ConstituencyDisplay id={id}/>, document.getElementById('root'));
+  }
+  selectBill(id) {
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<BillDisplay id={id}/>, document.getElementById('root'));
   }
   render(){
     var info = JSON.parse(this.state.info);
@@ -504,11 +516,23 @@ class MemberDisplay extends React.Component {
       }
     }
 
+    var voting = JSON.parse(this.state.voting);
+    var votingForRender = []
+    if (voting !== null){
+      var votingNum = voting.items.length;
+      for (var i = 0; i < votingNum; i++){
+        votingForRender[i] = voting.items[i].value;
+      }
+    }
+
     if (info == null){
       return(<p/>);
     }
 
-    console.log(bio);
+    console.log(voting);
+
+    var viewVoting = this.state.viewVoting ? {display: "block"} : {display: "none"};
+
 
     return(
       <div>
@@ -552,8 +576,37 @@ class MemberDisplay extends React.Component {
 
           </div>
 
-          <div className="careerSection">
-            <h3>Voting Record</h3>
+          <div className="contentBlock">
+            <div className="expandable nav centreTitle" onClick={() => this.setState({viewVoting: (!this.state.viewVoting)})}>
+              <h3 className="billTitle">Voting Record</h3>
+              <i className="fa fa-chevron-down"></i>
+            </div>
+            <div style={viewVoting}>
+            <div className="centreTitle nav">
+              <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage - 1), "votingPrev")}></i>
+              <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage + 1), "votingNext")}></i>
+            </div>
+            {votingForRender.map(division =>
+              <div className="billResult" onClick={() => this.selectBill(division.id)}>
+                <h4>{division.title}</h4>
+                <span></span>
+                <h5>Division {division.number}: {Formatters.dateHandler(division.date)}</h5>
+                <div className="votingBlock">
+                  <div className="voting ayeVote">
+                    <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.numberInFavour}</p>
+                  </div>
+                  <div className="voting nayeVote">
+                    <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.numberAgainst}</p>
+                  </div>
+                </div>
+              </div>)}
+              <div className="centreTitle nav">
+                <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage - 1), "votingPrev")}></i>
+                <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage + 1), "votingNext")}></i>
+              </div>
+            </div>
+
+
           </div>
 
           <div className="contentBlock">
@@ -691,12 +744,11 @@ class HoCParties extends React.Component {
             <p>Most MPs (Members of Parliament) are members of political parties, and so the makeup of the House of Commons is determined by whichever Party has a plurality of MPs.</p>
             <p className="seatsVisual">{elements.map(item => <>{item}</>)}</p>
 
-          </div>
-          <div className="contentBlock">
             <h3 className="centreTitle">Parties</h3>
             {stateHoC.items.map(item =>
               <div className="individualItem" style={{borderLeft: "0.5em solid #" + item.value.party.backgroundColour}}>
                 <h3>{item.value.party.name} ({item.value.party.abbreviation})</h3>
+                <div className="voting">
 
                 {(() => {
                   if (item.value.male > 0) {
@@ -726,6 +778,7 @@ class HoCParties extends React.Component {
                     )
                   }
                 })()}
+                </div>
               </div>)}
           </div>
         </div>
@@ -808,7 +861,7 @@ class HoCVotes extends React.Component {
 class BillDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {division: null};
+    this.state = {division: null, aye: false, no: false};
     this.APIcaller("https://commonsvotes-api.parliament.uk/data/division/" + this.props.id + ".json");
   }
   APIcaller(url, endpoint){
@@ -824,21 +877,105 @@ class BillDisplay extends React.Component {
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
   }
+  selectMember(id){
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<MemberDisplay id={id}/>, document.getElementById('root'));
+  }
   render() {
     var division = JSON.parse(this.state.division);
     if (division === null) {
       return (<p></p>);
     }
+    // Aye members.
+    var ayeStyle = this.state.aye ? {display: "block"} : {display: "none"};
+    var ayeMembersForRender = [];
+    for (var i = 0; i < division.Ayes.length; i ++) {
+      ayeMembersForRender[i] = division.Ayes[i];
+    }
+    // Aye tellers.
+    var ayeTellersForRender = [];
+    for (var i = 0; i < division.AyeTellers.length; i ++) {
+      ayeTellersForRender[i] = division.AyeTellers[i];
+    }
+
+    // No Members.
+    var noStyle = this.state.no ? {display: "block"} : {display: "none"};
+    var noMembersForRender = [];
+    for (var i = 0; i < division.Noes.length; i ++) {
+      noMembersForRender[i] = division.Noes[i];
+    }
+    // No tellers.
+    var noTellersForRender = [];
+    for (var i = 0; i < division.NoTellers.length; i ++) {
+      noTellersForRender[i] = division.NoTellers[i];
+    }
+
     console.log(division);
+
     return(
       <div>
         <div>
           <Header/>
         </div>
         <div className="mainContent">
+
           <div className="contentBlock">
-            <h3 className="centreTitle">Bill Name Here</h3>
+            <div className="row">
+              <div>
+                <h3 className="centreTitle billTitle">{division.Title}</h3>
+                <h4 className="centreTitle">Division {division.Number}: {Formatters.dateHandler(division.Date)}</h4>
+              </div>
+              <div className="voting ayeVote">
+                <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.AyeCount}</p>
+              </div>
+              <div className="voting nayeVote">
+                <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.NoCount}</p>
+              </div>
+            </div>
           </div>
+
+          <div className="centreTitle contentBlock">
+            <h3 className="billTitle">Aye Tellers</h3>
+            {ayeTellersForRender.map(member =>
+              <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                <h3>{member.Name}</h3>
+                <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
+              </div>)}
+
+            <div className="expandable nav centreTitle" onClick={() => this.setState({aye: (!this.state.aye)})}>
+              <h3 className="billTitle">Aye Voting Members: {division.AyeCount}</h3>
+              <i className="fa fa-chevron-down"></i>
+            </div>
+            <div style={ayeStyle}>
+              {ayeMembersForRender.map(member =>
+                <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                  <h3>{member.Name}</h3>
+                  <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
+                </div>)}
+              </div>
+          </div>
+
+          <div className="contentBlock centreTitle">
+            <h3 className="billTitle">No Tellers</h3>
+            {noTellersForRender.map(member =>
+              <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                <h3>{member.Name}</h3>
+                <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
+              </div>)}
+
+            <div className="expandable nav centreTitle" onClick={() => this.setState({no: (!this.state.no)})}>
+              <h3 className="billTitle">No Voting Members: {division.NoCount}</h3>
+              <i className="fa fa-chevron-down"></i>
+            </div>
+            <div style={noStyle}>
+              {noMembersForRender.map(member =>
+                <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                  <h3>{member.Name}</h3>
+                  <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
+                </div>)}
+            </div>
+          </div>
+
         </div>
         <Footer/>
       </div>
