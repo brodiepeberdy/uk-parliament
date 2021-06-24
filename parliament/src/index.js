@@ -442,7 +442,7 @@ class ConstituencyDisplay extends React.Component {
 class MemberDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {info: null, bio: null, contact: null, representations: null, voting: null, viewVoting: false, votingPage: 0};
+    this.state = {info: null, bio: null, contact: null, representations: null, voting: null, viewVoting: false, votingPage: 0, viewParties: false, viewConstituencies: false, viewGovPosts: false, viewOppPosts: false, viewCommittees: false, viewContact: false};
     this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id, "info");
     this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Biography", "bio");
     this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Contact", "contact");
@@ -491,10 +491,15 @@ class MemberDisplay extends React.Component {
     var houses = [["House of Commons", "Red"], ["House of Lords", "Green"]];
     var committeesForRender = []; var partiesForRender = [];
     var govPostsForRender = []; var oppPostsForRender = [];
+    var representationsForRender = [];
+
 
     if (bio !== null){
       for (var i = 0; i < bio.value.committeeMemberships.length; i++){
         committeesForRender[i] = bio.value.committeeMemberships[i];
+      }
+      for (var i = 0; i < bio.value.representations.length; i++){
+        representationsForRender[i] = bio.value.representations[i];
       }
       for (var i = 0; i < bio.value.partyAffiliations.length; i++){
         partiesForRender[i] = bio.value.partyAffiliations[i];
@@ -524,15 +529,23 @@ class MemberDisplay extends React.Component {
         votingForRender[i] = voting.items[i].value;
       }
     }
-
-    if (info == null){
+    else {
       return(<p/>);
     }
 
-    console.log(voting);
+    if (info === null){
+      return(<p/>);
+    }
+
+    console.log(bio);
 
     var viewVoting = this.state.viewVoting ? {display: "block"} : {display: "none"};
-
+    var viewParties = this.state.viewParties ? {display: "block"} : {display: "none"};
+    var viewConstituencies = this.state.viewConstituencies ? {display: "block"} : {display: "none"};
+    var viewGovPosts = this.state.viewGovPosts ? {display: "block"} : {display: "none"};
+    var viewOppPosts = this.state.viewOppPosts ? {display: "block"} : {display: "none"};
+    var viewCommittees = this.state.viewCommittees ? {display: "block"} : {display: "none"};
+    var viewContact = this.state.viewContact ? {display: "block"} : {display: "none"};
 
     return(
       <div>
@@ -549,13 +562,15 @@ class MemberDisplay extends React.Component {
           </div>
 
           <div className="contentBlock">
-            <h2>Contact Details</h2>
-            <div className="items">
+            <div className="expandable nav centreTitle" onClick={() => this.setState({viewContact: (!this.state.viewContact)})}>
+              <h3 className="billTitle">Contact Details</h3>
+              <i className="fa fa-chevron-down"></i>
+            </div>
+            <div style={viewContact} className="items">
               {contactsForRender.map(method =>
                 <div className="individualItem">
                   <h3>{method.type}</h3>
                   <p><i>{method.typeDescription}</i></p>
-
                   <div className="row">
                     <div className="details">
                       <p>{method.line1}</p>
@@ -565,7 +580,6 @@ class MemberDisplay extends React.Component {
                       <p>{method.line5}</p>
                       <p>{method.postcode}</p>
                     </div>
-
                     <div className="details">
                       <p><a href={"tel:" + method.phone}>{method.phone}</a></p>
                       <p><a href={"mailto:" + method.email}>{method.email}</a></p>
@@ -573,7 +587,6 @@ class MemberDisplay extends React.Component {
                   </div>
                 </div>)}
               </div>
-
           </div>
 
           <div className="contentBlock">
@@ -582,47 +595,76 @@ class MemberDisplay extends React.Component {
               <i className="fa fa-chevron-down"></i>
             </div>
             <div style={viewVoting}>
-            <div className="centreTitle nav">
-              <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage - 1), "votingPrev")}></i>
-              <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage + 1), "votingNext")}></i>
-            </div>
-            {votingForRender.map(division =>
-              <div className="billResult" onClick={() => this.selectBill(division.id)}>
-                <h4>{division.title}</h4>
-                <span></span>
-                <h5>Division {division.number}: {Formatters.dateHandler(division.date)}</h5>
-                <div className="votingBlock">
-                  <div className="voting ayeVote">
-                    <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.numberInFavour}</p>
-                  </div>
-                  <div className="voting nayeVote">
-                    <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.numberAgainst}</p>
-                  </div>
-                </div>
-              </div>)}
               <div className="centreTitle nav">
                 <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage - 1), "votingPrev")}></i>
                 <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage + 1), "votingNext")}></i>
               </div>
-            </div>
-
-
+              {votingForRender.map(division =>
+                <div className="billResult" onClick={() => this.selectBill(division.id)}>
+                  <h4>{division.title}</h4>
+                  <span></span>
+                  <h5>Division {division.number}: {Formatters.dateHandler(division.date)}</h5>
+                  {(() => {
+                    if (division.actedAsTeller) {return (<h5>Member Acted as Teller</h5>)}
+                  })()}
+                  <div className="votingBlock">
+                    {(() => {
+                      if (division.inAffirmativeLobby) {return (<div className="voting memberVote"><i className="fa fa-thumbs-up"></i><p>Voted‌‌ Aye</p></div>)}
+                      else {return (<div className="voting memberVote"><i className="fa fa-thumbs-down"></i><p>Voted‌‌ No</p></div>)}
+                    })()}
+                    <div className="voting ayeVote">
+                      <i className="fa fa-thumbs-up"></i><p>Ayes: {division.numberInFavour}</p>
+                    </div>
+                    <div className="voting noVote">
+                      <i className="fa fa-thumbs-down"></i><p>Noes: {division.numberAgainst}</p>
+                    </div>
+                  </div>
+                </div>)}
+                <div className="centreTitle nav">
+                  <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage - 1), "votingPrev")}></i>
+                  <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://members-api.parliament.uk/api/Members/" + this.props.id + "/Voting?house=1&page=" + (this.state.votingPage + 1), "votingNext")}></i>
+                </div>
+              </div>
           </div>
 
           <div className="contentBlock">
-            <h2>Parliamentary Career</h2>
+            <h2 className="centreTitle">Parliamentary Career</h2>
 
             <div className="careerSection">
-              <h3>Party Affiliations</h3>
-              {partiesForRender.map(party =>
-                  <div className="individualItem">
-                    <h3>{party.name}</h3>
-                    <h5>{Formatters.dateHandler(party.startDate)} - {Formatters.dateHandler(party.endDate)}</h5>
-                </div>)}
+              <div className="expandable nav centreTitle" onClick={() => this.setState({viewParties: (!this.state.viewParties)})}>
+                <h3 className="billTitle">Party Affiliations</h3>
+                <i className="fa fa-chevron-down"></i>
+              </div>
+              <div style={viewParties}>
+                {partiesForRender.map(party =>
+                    <div className="individualItem">
+                      <h3>{party.name}</h3>
+                      <h5>{Formatters.dateHandler(party.startDate)} - {Formatters.dateHandler(party.endDate)}</h5>
+                  </div>)}
+              </div>
             </div>
 
             <div className="careerSection">
-              <h3>Government Posts</h3>
+              <div className="expandable nav centreTitle" onClick={() => this.setState({viewConstituencies: (!this.state.viewConstituencies)})}>
+                <h3 className="billTitle">Constituencies Represented</h3>
+                <i className="fa fa-chevron-down"></i>
+              </div>
+              <div style={viewConstituencies}>
+              {representationsForRender.map(constituency =>
+                  <div className="individualItem">
+                    <h3>{constituency.name}</h3>
+                    <h4>{constituency.additionalInfo}</h4>
+                    <h5>{Formatters.dateHandler(constituency.startDate)} - {Formatters.dateHandler(constituency.endDate)}</h5>
+                </div>)}
+              </div>
+            </div>
+
+            <div className="careerSection">
+              <div className="expandable nav centreTitle" onClick={() => this.setState({viewGovPosts: (!this.state.viewGovPosts)})}>
+                <h3 className="billTitle">Government Posts</h3>
+                <i className="fa fa-chevron-down"></i>
+              </div>
+              <div style={viewGovPosts}>
               {govPostsForRender.map(post =>
                   <div className="individualItem" style={{borderLeft: "0.6em solid " + houses[post.house - 1][1]}}>
                     <h3 className="centreTitle">{post.name}</h3>
@@ -631,10 +673,15 @@ class MemberDisplay extends React.Component {
                       <h5>• {Formatters.dateHandler(post.startDate)} - {Formatters.dateHandler(post.endDate)}</h5>
                     </div>
                 </div>)}
+              </div>
             </div>
 
             <div className="careerSection">
-              <h3>Opposition Posts</h3>
+              <div className="expandable nav centreTitle" onClick={() => this.setState({viewOppPosts: (!this.state.viewOppPosts)})}>
+                <h3 className="billTitle">Opposition Posts</h3>
+                <i className="fa fa-chevron-down"></i>
+              </div>
+              <div style={viewOppPosts}>
               {oppPostsForRender.map(post =>
                   <div className="individualItem" style={{borderLeft: "0.6em solid " + houses[post.house - 1][1]}}>
                     <h3 className="centreTitle">{post.name}</h3>
@@ -643,14 +690,15 @@ class MemberDisplay extends React.Component {
                       <h5>• {Formatters.dateHandler(post.startDate)} - {Formatters.dateHandler(post.endDate)}</h5>
                     </div>
                 </div>)}
+              </div>
             </div>
 
-
-
-
-
             <div className="careerSection">
-              <h3>Committee Memberships</h3>
+              <div className="expandable nav centreTitle" onClick={() => this.setState({viewCommittees: (!this.state.viewCommittees)})}>
+                <h3 className="billTitle">Committee Memberships</h3>
+                <i className="fa fa-chevron-down"></i>
+              </div>
+              <div style={viewCommittees}>
               {committeesForRender.map(committee =>
                 <div className="individualItem" style={{borderLeft: "0.6em solid " + houses[committee.house - 1][1]}}>
                   <h3 className="centreTitle">{committee.name}</h3>
@@ -660,11 +708,9 @@ class MemberDisplay extends React.Component {
                   </div>
                 </div>)}
               </div>
-
-
+            </div>
 
           </div>
-
         </div>
         <Footer/>
       </div>
@@ -831,26 +877,28 @@ class HoCVotes extends React.Component {
         <div>
           <Header/>
         </div>
-        <div className="mainContent">
+        <div className="mainContent mainCentral">
           <div className="contentBlock">
             <h3 className="centreTitle">View Past Votes in the House of Commons</h3>
           </div>
-          {divisionsForRender.map(division =>
-              <div className="billResult" onClick={() => this.selectBill(division.DivisionId)}>
-                <h4>{division.Title}</h4>
-                <span></span>
-                <h5>Division {division.Number}: {Formatters.dateHandler(division.Date)}</h5>
-                <div className="votingBlock">
-                  <div className="voting ayeVote">
-                    <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.AyeCount}</p>
+          <div>
+            {divisionsForRender.map(division =>
+                <div className="billResult" onClick={() => this.selectBill(division.DivisionId)}>
+                  <h4>{division.Title}</h4>
+                  <span></span>
+                  <h5>Division {division.Number}: {Formatters.dateHandler(division.Date)}</h5>
+                  <div className="votingBlock">
+                    <div className="voting ayeVote">
+                      <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.AyeCount}</p>
+                    </div>
+                    <div className="voting noVote">
+                      <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.NoCount}</p>
+                    </div>
                   </div>
-                  <div className="voting nayeVote">
-                    <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.NoCount}</p>
-                  </div>
-                </div>
 
 
-            </div>)}
+              </div>)}
+            </div>
         </div>
         <Footer/>
       </div>
@@ -928,7 +976,7 @@ class BillDisplay extends React.Component {
               <div className="voting ayeVote">
                 <i className="fa fa-thumbs-up"></i><p>⠀Ayes: {division.AyeCount}</p>
               </div>
-              <div className="voting nayeVote">
+              <div className="voting noVote">
                 <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.NoCount}</p>
               </div>
             </div>
