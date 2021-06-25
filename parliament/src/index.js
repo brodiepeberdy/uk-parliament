@@ -26,11 +26,14 @@ class LandingPage extends React.Component {
         </div>
 
         <div className="contentBlock">
-          <div className="row">
-            <Button text=" House of Commons" type="HoC" icon="fa fa-bank" background="ForestGreen"/>
-            <Button text=" House of Lords" type="HoL" icon="fa fa-bank" background="FireBrick"/>
-          </div>
           <p>Understanding the labrynth of Parliamentary committees, schedules, and rules becomes quickly overwhelmingly. This resource aims to provide a more concise and accessible means of understanding who represents you in Parliament, what theirs views are, and the general proceedings of both Houses.</p>
+          <h3 className="centreTitle">House of Commons</h3>
+          <div className="row">
+            <Button text=" Members" type="HoCMembers" icon="fa fa-user" background="ForestGreen"/>
+            <Button text=" Parties" type="HoCParties" icon="fa fa-users" background="MediumSeaGreen"/>
+            <Button text=" Votes" type="HoCVotes" icon="fa fa-tasks" background="DarkGoldenRod"/>
+            <Button text=" Oral Questions and Motions" type="Questions" icon="fa fa-comments" background="SteelBlue"/>
+          </div>
         </div>
 
         <div className="contentBlock">
@@ -77,13 +80,13 @@ class Button extends React.Component {
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCVotes/>, document.getElementById('root'));
     }
-    else if (type === "PC"){
-      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-      ReactDOM.render(<CommitteesPage/>, document.getElementById('root'));
-    }
     else if (type === "Icon"){
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<LandingPage/>, document.getElementById('root'));
+    }
+    else if (type === "Questions"){
+      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+      ReactDOM.render(<HoCQuestions/>, document.getElementById('root'));
     }
   }
   render() {
@@ -135,7 +138,7 @@ class HoCPage extends React.Component {
               <Button text=" Members" type="HoCMembers" icon="fa fa-user" background="ForestGreen"/>
               <Button text=" Parties" type="HoCParties" icon="fa fa-users" background="MediumSeaGreen"/>
               <Button text=" Votes" type="HoCVotes" icon="fa fa-tasks" background="DarkGoldenRod"/>
-              <Button text=" Oral Questions and Motions" type="Oral" icon="fa fa-comments" background="SteelBlue"/>
+              <Button text=" Oral Questions and Motions" type="Questions" icon="fa fa-comments" background="SteelBlue"/>
             </div>
           </div>
         </div>
@@ -209,19 +212,15 @@ class Search extends React.Component {
     this.setState({search: event.target.value});
   }
   render() {
-    const mystyle = {
-      textAlign: "center",
-      width: "95%"
-    };
     return (
-      <div className="search-container mainContent">
+      <div>
         <form className="SearchBar" onSubmit={this.submitSearch}>
-          <input className="SearchInput" style={mystyle} type="text" placeholder="Search for constituency, or enter your post code..." onChange={this.changeSearch}/>
+          <input className="SearchInput" style={{textAlign: "center", width: "95%"}} type="text" placeholder="Search for constituency, or enter your post code..." onChange={this.changeSearch}/>
           <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
         </form>
         <ConstituencySearchDisplay results={this.state.results}/>
       </div>
-    );
+  );
   }
 }
 
@@ -256,7 +255,7 @@ class ConstituencySearchDisplay extends React.Component {
             <p>Nothing showing up? Double check what you entered!</p>
           </div>);
       }
-      else if (this.state.selectedID == null){
+      else if (this.state.selectedID === null){
         return (
           <div>
             <ul className="results">
@@ -295,10 +294,10 @@ class ConstituencySearchSelect extends React.Component {
     xmlhttp.onreadystatechange = function() {
       if (this.readyState === 4 && this.status === 200) {
         var response = JSON.stringify(JSON.parse(this.responseText));
-        if (endpoint == "Location/Constituency/"){
+        if (endpoint === "Location/Constituency/"){
           self.displayConstituency(response);
         }
-        else if (endpoint == "Members/"){
+        else if (endpoint === "Members/"){
           self.displayMember(response);
         }
       }
@@ -389,7 +388,7 @@ class ConstituencyDisplay extends React.Component {
       }
     }
 
-    if (info == null){
+    if (info === null){
       return(<p/>);
     }
 
@@ -837,7 +836,7 @@ class HoCParties extends React.Component {
 class HoCVotes extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {divisionsResults: null};
+    this.state = {divisionsResults: null, search: "", start: null, end: null};
     this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search/", "search");
   }
   APIcaller(url, endpoint){
@@ -854,6 +853,32 @@ class HoCVotes extends React.Component {
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+  }
+  submitSearch = (event) => {
+    event.preventDefault();
+    if (this.state.search.trim() !== "" || this.state.search.trim() !== undefined || this.state.search.trim() !== null){
+      var url = "https://commonsvotes-api.parliament.uk/data/divisions.json/search?searchTerm=" + this.state.search;
+      console.log(this.state.start);
+      if (this.state.start !== null) {
+        url = url + "&startDate=" + this.state.start.toString();
+      }
+      if (this.state.end !== null) {
+        url = url + "&endDate=" + this.state.end;
+      }
+      this.APIcaller(url, "search");
+    }
+    else{
+      throw "Please enter a valid constituency name.";
+    }
+  }
+  changeSearch = (event) => {
+    this.setState({search: event.target.value});
+  }
+  changeStart = (event) => {
+    this.setState({start: event.target.value});
+  }
+  changeEnd = (event) => {
+    this.setState({end: event.target.value});
   }
   selectBill(id) {
     ReactDOM.unmountComponentAtNode(document.getElementById('root'));
@@ -880,7 +905,22 @@ class HoCVotes extends React.Component {
         <div className="mainContent mainCentral">
           <div className="contentBlock">
             <h3 className="centreTitle">View Past Votes in the House of Commons</h3>
+
+              <form onSubmit={this.submitSearch}>
+                <div className="SearchBar">
+                  <input className="SearchInput" style={{textAlign: "center", width: "95%"}} type="text" placeholder="Search for a past vote in the House of Commons..." onChange={this.changeSearch}/>
+                  <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
+                </div>
+              </form>
+
+              <p>These are optional parameters which can help you cute down your search to a specific period.</p>
+              <div className="SearchBar searchDates">
+                <p>Start Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeStart}/>
+                <p>End Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeEnd}/>
+              </div>
+
           </div>
+
           <div>
             {divisionsForRender.map(division =>
                 <div className="billResult" onClick={() => this.selectBill(division.DivisionId)}>
@@ -942,8 +982,10 @@ class BillDisplay extends React.Component {
     }
     // Aye tellers.
     var ayeTellersForRender = [];
-    for (var i = 0; i < division.AyeTellers.length; i ++) {
-      ayeTellersForRender[i] = division.AyeTellers[i];
+    if (division.AyeTellers !== null) {
+      for (var i = 0; i < division.AyeTellers.length; i ++) {
+        ayeTellersForRender[i] = division.AyeTellers[i];
+      }
     }
 
     // No Members.
@@ -954,8 +996,10 @@ class BillDisplay extends React.Component {
     }
     // No tellers.
     var noTellersForRender = [];
-    for (var i = 0; i < division.NoTellers.length; i ++) {
-      noTellersForRender[i] = division.NoTellers[i];
+    if (division.NoTellers !== null) {
+      for (var i = 0; i < division.NoTellers.length; i ++) {
+        noTellersForRender[i] = division.NoTellers[i];
+      }
     }
 
     console.log(division);
@@ -1031,11 +1075,33 @@ class BillDisplay extends React.Component {
   }
 }
 
-
-class CommitteesPage extends React.Component {
+class HoCQuestions extends React.Component {
   render() {
     return(
       <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="mainContent mainCentral">
+          <div className="contentBlock">
+            <h3 className="centreTitle">View Past Oral Questions in the House of Commons</h3>
+
+              <form onSubmit={this.submitSearch}>
+                <div className="SearchBar">
+                  <input className="SearchInput" style={{textAlign: "center", width: "95%"}} type="text" placeholder="Search for a past vote in the House of Commons..." onChange={this.changeSearch}/>
+                  <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
+                </div>
+              </form>
+
+              <p>These are optional parameters which can help you cute down your search to a specific period.</p>
+              <div className="SearchBar searchDates">
+                <p>Start Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeStart}/>
+                <p>End Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeEnd}/>
+              </div>
+
+          </div>
+        </div>
+        <Footer/>
       </div>
     );
   }

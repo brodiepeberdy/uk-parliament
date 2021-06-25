@@ -34,27 +34,6 @@ div {
   color: white;
   background-color: CornflowerBlue;
 }
-
-.mainContent {
-  overflow: auto;
-  margin-bottom: 3em;
-}
-
-.mainCentral {
-  align-items: center;
-  text-align: center;
-}
-
-iframe {
-  margin-left: 1em;
-  margin-bottom: 1em;
-}
-
-.info {
-  display:flex;
-  align-items:center;
-}
-
 /* unvisited link */
 .footer a:link {
   color: white;
@@ -72,14 +51,40 @@ iframe {
   color: white;
 }
 
+.mainContent {
+  overflow: auto;
+  margin-bottom: 3em;
+}
+.mainCentral {
+  align-items: center;
+  text-align: center;
+}
+
+iframe {
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+
+
+.searchBox {
+  text-align: center;
+}
+
+.info {
+  display:flex;
+  align-items:center;
+}
+
+
+
 .results {
   display: inline-block;
   padding: 1em;
   margin-right: 1em;
   list-style-type: none;
   background-color: #dae9f7;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
-  border-left: 0.3em solid CornflowerBlue;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
+  border-left: 0.4em solid CornflowerBlue;
   border-bottom: 0.1em solid LightBlue;
   float: left;
   width: 40vh;
@@ -99,8 +104,8 @@ iframe {
   display: inline-block;
   padding: 0.1em;
   background-color: #dae9f7;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
-  border-left: 0.3em solid CornflowerBlue;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
+  border-left: 0.4em solid CornflowerBlue;
   border-bottom: 0.1em solid LightBlue;
   margin: 1em;
   overflow: hidden;
@@ -149,13 +154,17 @@ iframe {
   cursor: pointer;
   font-size: 1.3em;
 }
+.searchDates {
+  align-items: center;
+  display: inline-flex;
+}
 
 .contentBlock {
   margin: 0.25em;
   padding: 0.15em;
-  border-left: 0.3em solid CornflowerBlue;
+  border-left: 0.4em solid CornflowerBlue;
   border-bottom: 0.1em solid LightBlue;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
   background-color: #dae9f7;
 }
 .contentBlock p {
@@ -177,8 +186,8 @@ iframe {
 .divisionBlock {
   margin: 0.25em;
   padding: 0.15em;
-  border-left: 0.3em solid CornflowerBlue;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-left: 0.4em solid CornflowerBlue;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
   background-color: #dae9f7;
 }
 
@@ -188,7 +197,7 @@ iframe {
 
 .electionResult {
   margin: 0.8em;
-  border: 0.3em solid;
+  border: 0.4em solid;
   border-radius: 1em 1em 1em 1em;
   background-color: MintCream;
   color: DarkBlue;
@@ -244,7 +253,7 @@ iframe {
 .individualItem {
   display: inline-block;
   background-color: #ededed;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
   border-bottom: 0.1em solid Gainsboro;
   border-left: 0.6em solid CornflowerBlue;
   overflow: auto;
@@ -256,7 +265,7 @@ iframe {
 .billResult {
   display: inline-block;
   background-color: #ededed;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
   border-bottom: 0.1em solid Gainsboro;
   border-left: 0.6em solid CornflowerBlue;
   height: 40vh;
@@ -318,7 +327,7 @@ iframe {
 .careerSection {
   padding: 0.05em;
   background-color: AliceBlue;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
 }
 .centreTitle {
   text-align: center;
@@ -332,7 +341,7 @@ iframe {
   word-spacing: -3px;
   padding: 0.5em;
   margin: 1em;
-  border-radius: 0.3em 0.3em 0.3em 0.3em;
+  border-radius: 0.4em 0.4em 0.4em 0.4em;
   border: 0.1em solid CornflowerBlue;
   background-color: White;
   width: 60%;
