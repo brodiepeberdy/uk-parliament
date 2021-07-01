@@ -368,8 +368,6 @@ iframe {
   cursor: pointer;
 }
 .votingMember {
-  width: 60vh;
-  height: 20vh;
   overflow: none;
 }
 .votingMember a {
@@ -381,4 +379,17 @@ iframe {
   cursor: pointer;
   text-decoration: underline;
   background-color: Gainsboro;
+}
+.votingMember img {
+  height: 10em;
+  width: 10em;
+}
+
+.sponsor img {
+  height: 5em;
+  width: 5em;
+  margin: 0.75em;
+  float: left;
+  border: 0.5em solid CornflowerBlue;
+  border-radius: 50% 50% 50% 50%;
 }

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Footer from './components/Footer.js'
 import Formatters from './js/Formatters.js'
 import './styling.css';
+// For Font Awesome icon classes.
 import 'font-awesome/css/font-awesome.min.css';
 
 // Header component for the top of every page. Has a "home" button which returns the user to the landing page, and the title of the website.
@@ -62,13 +63,10 @@ class LandingPage extends React.Component {
   }
 }
 
+// Class used for the navigation buttons on the landing page.
 class Button extends React.Component {
   select(type){
-    if (type === "HoC"){
-      ReactDOM.unmountComponentAtNode(document.getElementById('root'));
-      ReactDOM.render(<HoCPage/>, document.getElementById('root'));
-    }
-    else if (type === "HoCMembers"){
+    if (type === "HoCMembers"){
       ReactDOM.unmountComponentAtNode(document.getElementById('root'));
       ReactDOM.render(<HoCMembers/>, document.getElementById('root'));
     }
@@ -124,30 +122,7 @@ class Button extends React.Component {
   }
 }
 
-class HoCPage extends React.Component {
-  render() {
-    return (
-      <div>
-        <div>
-          <Header/>
-        </div>
-        <div className="mainContent">
-          <div className="contentBlock">
-            <h3 className="centreTitle">House of Commons</h3>
-            <div className="row">
-              <Button text=" Members" type="HoCMembers" icon="fa fa-user" background="ForestGreen"/>
-              <Button text=" Parties" type="HoCParties" icon="fa fa-users" background="MediumSeaGreen"/>
-              <Button text=" Votes" type="HoCVotes" icon="fa fa-tasks" background="DarkGoldenRod"/>
-              <Button text=" Oral Questions and Motions" type="Questions" icon="fa fa-comments" background="SteelBlue"/>
-            </div>
-          </div>
-        </div>
-        <Footer/>
-      </div>
-    )
-  }
-}
-
+// Page for searching for your constituency to view your MP.
 class HoCMembers extends React.Component {
   render() {
     return (
@@ -156,7 +131,7 @@ class HoCMembers extends React.Component {
           <Header/>
         </div>
         <div id="content">
-          <Search endpoint="/api/Location/Constituency/Search"/>
+          <ConstituencySearch endpoint="/api/Location/Constituency/Search"/>
         </div>
         <Footer/>
       </div>
@@ -165,10 +140,7 @@ class HoCMembers extends React.Component {
 }
 
 
-
-
-
-class Search extends React.Component {
+class ConstituencySearch extends React.Component {
   constructor(props) {
     super(props);
     this.state = {results: null};
@@ -319,7 +291,7 @@ class ConstituencySearchSelect extends React.Component {
     var image = response.value.currentRepresentation.member.value.thumbnailUrl;
     return (
       <div className="selected">
-        <img style={{border: "0.3em solid #" + response.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={image} alt={response.value.currentRepresentation.member.value.nameDisplayAs}></img>
+        <img style={{border: "0.3em solid #" + response.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={image}></img>
         <div>
           <h1><a onClick={() => this.selectConstituency(response.value.id)}>{response.value.name}</a></h1>
           <h3>Represented by <b><a onClick={() => this.selectMember(response.value.currentRepresentation.member.value.id)}>{response.value.currentRepresentation.member.value.nameDisplayAs}</a></b>
@@ -399,7 +371,7 @@ class ConstituencyDisplay extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock selected">
-            <img style={{border: "0.3em solid #" + info.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={info.value.currentRepresentation.member.value.thumbnailUrl} alt={info.value.currentRepresentation.member.value.nameDisplayAs}></img>
+            <img style={{border: "0.3em solid #" + info.value.currentRepresentation.member.value.latestParty.backgroundColour}} src={info.value.currentRepresentation.member.value.thumbnailUrl}></img>
             <div>
               <h1>{info.value.name}</h1>
               <p><a onClick={() => this.selectMember(info.value.currentRepresentation.member.value.id)}>{info.value.currentRepresentation.member.value.nameDisplayAs}</a> has been the the <a onClick={() => this.viewParties()}>{info.value.currentRepresentation.member.value.latestParty.name} ({info.value.currentRepresentation.member.value.latestParty.abbreviation})</a> MP for {info.value.name} since {Formatters.dateHandler(info.value.currentRepresentation.member.value.latestHouseMembership.membershipStartDate)}.</p>
@@ -409,7 +381,7 @@ class ConstituencyDisplay extends React.Component {
             <h3>Previous MPs</h3>
             {representationsForRender.map(rep =>
               <div className="previousMP">
-                <img style={{border: "0.3em solid #" + rep.member.value.latestParty.backgroundColour}} src={rep.member.value.thumbnailUrl} alt={rep.member.value.nameDisplayAs}></img>
+                <img style={{border: "0.3em solid #" + rep.member.value.latestParty.backgroundColour}} src={rep.member.value.thumbnailUrl}></img>
                 <div>
                   <h3>{rep.member.value.nameDisplayAs} | {rep.member.value.latestParty.name}</h3>
                   <h5>{Formatters.dateHandler(rep.representation.membershipStartDate)} - {Formatters.dateHandler(rep.representation.membershipEndDate)}</h5>
@@ -536,7 +508,7 @@ class MemberDisplay extends React.Component {
       return(<p/>);
     }
 
-    console.log(bio);
+    console.log(voting);
 
     var viewVoting = this.state.viewVoting ? {display: "block"} : {display: "none"};
     var viewParties = this.state.viewParties ? {display: "block"} : {display: "none"};
@@ -553,7 +525,7 @@ class MemberDisplay extends React.Component {
         </div>
         <div className="mainContent">
           <div className="contentBlock selected">
-            <img style={{border: "0.3em solid #" + info.value.latestParty.backgroundColour}} src={info.value.thumbnailUrl} alt={info.value.nameDisplayAs}></img>
+            <img style={{border: "0.3em solid #" + info.value.latestParty.backgroundColour}} src={info.value.thumbnailUrl}></img>
             <div>
               <h1>{info.value.nameDisplayAs}</h1>
               <p>{info.value.nameDisplayAs} has been the the {info.value.latestParty.name} ({info.value.latestParty.abbreviation}) MP for <a onClick={() => this.selectConstituency(info.value.latestHouseMembership.membershipFromId)}>{info.value.latestHouseMembership.membershipFrom}</a> since {Formatters.dateHandler(info.value.latestHouseMembership.membershipStartDate)}.</p>
@@ -836,7 +808,7 @@ class HoCParties extends React.Component {
 class HoCVotes extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {divisionsResults: null, search: "", start: null, end: null};
+    this.state = {divisionsResults: null, search: "", start: null, end: null, skipNum: 0};
     this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search/", "search");
   }
   APIcaller(url, endpoint){
@@ -848,6 +820,14 @@ class HoCVotes extends React.Component {
         var response = JSON.stringify(JSON.parse(this.responseText));
         if (endpoint === "search"){
           self.setState({divisionsResults: response});
+        }
+        else if (endpoint === "votingNext"){
+          self.setState({divisionsResults: response, skipNum: self.state.skipNum + 25});
+        }
+        else if (endpoint === "votingPrev"){
+          if (self.state.votingPage - 25 !== -25) {
+            self.setState({divisionsResults: response, skipNum: self.state.skipNum - 25});
+          }
         }
       }
     };
@@ -913,7 +893,7 @@ class HoCVotes extends React.Component {
                 </div>
               </form>
 
-              <p>These are optional parameters which can help you cute down your search to a specific period.</p>
+              <p>These are optional parameters which can help you cut down your search to a specific period.</p>
               <div className="SearchBar searchDates">
                 <p>Start Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeStart}/>
                 <p>End Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeEnd}/>
@@ -922,6 +902,13 @@ class HoCVotes extends React.Component {
           </div>
 
           <div>
+
+            <div className="centreTitle nav">
+              <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search?skip=" + (this.state.skipNum - 25), "votingPrev")}></i>
+              <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search?skip=" + (this.state.skipNum + 25), "votingNext")}></i>
+            </div>
+
+
             {divisionsForRender.map(division =>
                 <div className="billResult" onClick={() => this.selectBill(division.DivisionId)}>
                   <h4>{division.Title}</h4>
@@ -935,10 +922,17 @@ class HoCVotes extends React.Component {
                       <i className="fa fa-thumbs-down"></i><p>⠀Noes: {division.NoCount}</p>
                     </div>
                   </div>
-
-
               </div>)}
-            </div>
+
+
+              <div className="centreTitle nav">
+                <i className="fa fa-chevron-left" onClick={() => this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search?skip=" + (this.state.skipNum - 25), "votingPrev")}></i>
+                <i className="fa fa-chevron-right" onClick={() => this.APIcaller("https://commonsvotes-api.parliament.uk/data/divisions.json/search?skip=" + (this.state.skipNum + 25), "votingNext")}></i>
+              </div>
+
+
+          </div>
+
         </div>
         <Footer/>
       </div>
@@ -975,7 +969,7 @@ class BillDisplay extends React.Component {
       return (<p></p>);
     }
     // Aye members.
-    var ayeStyle = this.state.aye ? {display: "block"} : {display: "none"};
+    var ayeStyle = this.state.aye ? {display: "block", margin: 0} : {display: "none"};
     var ayeMembersForRender = [];
     for (var i = 0; i < division.Ayes.length; i ++) {
       ayeMembersForRender[i] = division.Ayes[i];
@@ -989,7 +983,7 @@ class BillDisplay extends React.Component {
     }
 
     // No Members.
-    var noStyle = this.state.no ? {display: "block"} : {display: "none"};
+    var noStyle = this.state.no ? {display: "block", margin: 0} : {display: "none"};
     var noMembersForRender = [];
     for (var i = 0; i < division.Noes.length; i ++) {
       noMembersForRender[i] = division.Noes[i];
@@ -1001,8 +995,6 @@ class BillDisplay extends React.Component {
         noTellersForRender[i] = division.NoTellers[i];
       }
     }
-
-    console.log(division);
 
     return(
       <div>
@@ -1028,8 +1020,9 @@ class BillDisplay extends React.Component {
 
           <div className="centreTitle contentBlock">
             <h3 className="billTitle">Aye Tellers</h3>
-            {ayeTellersForRender.map(member =>
-              <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+            {ayeTellersForRender.map((member, i) =>
+              <div key={i} className="individualItem votingMember selected" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                <img style={{border: "0.3em solid #" + member.PartyColour}} src={"https://members-api.parliament.uk/api/Members/" + member.MemberId + "/Thumbnail"}></img>
                 <h3>{member.Name}</h3>
                 <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
               </div>)}
@@ -1039,8 +1032,9 @@ class BillDisplay extends React.Component {
               <i className="fa fa-chevron-down"></i>
             </div>
             <div style={ayeStyle}>
-              {ayeMembersForRender.map(member =>
-                <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+              {ayeMembersForRender.map((member, i) =>
+                <div style={ayeStyle} key={i} className="individualItem votingMember selected" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                  <img style={{border: "0.3em solid #" + member.PartyColour}} src={"https://members-api.parliament.uk/api/Members/" + member.MemberId + "/Thumbnail"}></img>
                   <h3>{member.Name}</h3>
                   <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
                 </div>)}
@@ -1049,8 +1043,9 @@ class BillDisplay extends React.Component {
 
           <div className="contentBlock centreTitle">
             <h3 className="billTitle">No Tellers</h3>
-            {noTellersForRender.map(member =>
-              <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+            {noTellersForRender.map((member, i) =>
+              <div key={i} className="individualItem votingMember selected" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                <img style={{border: "0.3em solid #" + member.PartyColour}} src={"https://members-api.parliament.uk/api/Members/" + member.MemberId + "/Thumbnail"}></img>
                 <h3>{member.Name}</h3>
                 <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
               </div>)}
@@ -1060,8 +1055,9 @@ class BillDisplay extends React.Component {
               <i className="fa fa-chevron-down"></i>
             </div>
             <div style={noStyle}>
-              {noMembersForRender.map(member =>
-                <div className="individualItem votingMember" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+              {noMembersForRender.map((member, i) =>
+                <div key={i} className="individualItem votingMember selected" onClick={() => this.selectMember(member.MemberId)} style={{borderLeft: "0.6em solid #" + member.PartyColour}}>
+                  <img style={{border: "0.3em solid #" + member.PartyColour}} src={"https://members-api.parliament.uk/api/Members/" + member.MemberId + "/Thumbnail"}></img>
                   <h3>{member.Name}</h3>
                   <h4>{member.Party} ({member.PartyAbbreviation}) Member for {member.MemberFrom}</h4>
                 </div>)}
@@ -1076,7 +1072,88 @@ class BillDisplay extends React.Component {
 }
 
 class HoCQuestions extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {edmResults: null, search: "", start: null, end: null, skip: 0};
+    this.APIcaller("https://oralquestionsandmotions-api.parliament.uk/EarlyDayMotions/list", "search");
+  }
+  APIcaller(url, endpoint){
+    this.responseText = null; // Weird cache issue
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        if (endpoint === "search"){
+          self.setState({edmResults: response});
+        }
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  submitSearch = (event) => {
+    event.preventDefault();
+    if (this.state.search.trim() !== "" || this.state.search.trim() !== undefined || this.state.search.trim() !== null){
+      var url = "https://oralquestionsandmotions-api.parliament.uk/EarlyDayMotions/list?searchTerm=" + this.state.search + "&skip=" + this.state.skip;
+      console.log(this.state.start);
+      if (this.state.start !== null) {
+        url = url + "&tabledStartDate=" + this.state.start.toString();
+      }
+      if (this.state.end !== null) {
+        url = url + "&tabledEndDate=" + this.state.end;
+      }
+      this.APIcaller(url, "search");
+    }
+    else{
+      throw "There was a problem understanding what you entered. Please try again.";
+    }
+  }
+  changePage(offset, skip, total) {
+    if (skip + offset >= 0 && skip + offset <= total) {
+      this.state.skip = this.state.skip + offset;
+      if (this.state.search.trim() !== "" || this.state.search.trim() !== undefined || this.state.search.trim() !== null){
+        var url = "https://oralquestionsandmotions-api.parliament.uk/EarlyDayMotions/list?searchTerm=" + this.state.search + "&skip=" + this.state.skip;
+        console.log(this.state.start);
+        if (this.state.start !== null) {
+          url = url + "&tabledStartDate=" + this.state.start.toString();
+        }
+        if (this.state.end !== null) {
+          url = url + "&tabledEndDate=" + this.state.end;
+        }
+        this.APIcaller(url, "search");
+      }
+      else{
+        throw "There was a problem understanding what you entered. Please try again.";
+      }
+    }
+  }
+  changeSearch = (event) => {
+    this.setState({search: event.target.value});
+  }
+  changeStart = (event) => {
+    this.setState({start: event.target.value});
+  }
+  changeEnd = (event) => {
+    this.setState({end: event.target.value});
+  }
+  selectMotion(id){
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<MotionDisplay id={id}/>, document.getElementById('root'));
+  }
   render() {
+    var edms = JSON.parse(this.state.edmResults);
+    var edmsForRender = [];
+    if (edms !== null && edms !== undefined){
+      var numEdms = edms.Response.length;
+      for (var i = 1; i < numEdms; i++){
+        edmsForRender[i] = edms.Response[i];
+      }
+    }
+    else {
+      return (<p></p>);
+    }
+    console.log(edms);
     return(
       <div>
         <div>
@@ -1084,22 +1161,151 @@ class HoCQuestions extends React.Component {
         </div>
         <div className="mainContent mainCentral">
           <div className="contentBlock">
-            <h3 className="centreTitle">View Past Oral Questions in the House of Commons</h3>
+            <h3 className="centreTitle">Early Day Motions</h3>
 
               <form onSubmit={this.submitSearch}>
                 <div className="SearchBar">
-                  <input className="SearchInput" style={{textAlign: "center", width: "95%"}} type="text" placeholder="Search for a past vote in the House of Commons..." onChange={this.changeSearch}/>
+                  <input className="SearchInput" style={{textAlign: "center", width: "95%"}} type="text" placeholder="Search for an Early Day Motion by title or number... " onChange={this.changeSearch}/>
                   <button className="SearchButton" type="submit"><i className="fa fa-search"></i></button>
                 </div>
               </form>
 
-              <p>These are optional parameters which can help you cute down your search to a specific period.</p>
+              <p>These are optional parameters which can help you cut down your search to a specific period.</p>
               <div className="SearchBar searchDates">
                 <p>Start Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeStart}/>
                 <p>End Date:‌‌ ‌‌ ‌‌ ‌‌ </p><input className="SearchInput dateInput" style={{textAlign: "center", borderRadius: "0.4em 0.4em 0.4em 0.4em"}} type="date" onChange={this.changeEnd}/>
               </div>
 
           </div>
+
+
+
+          <div>
+            <p>Page {Math.floor(edms.PagingInfo.Skip / 25) + 1} of {Math.floor(edms.PagingInfo.Total / 25) + 1}</p>
+            <div className="centreTitle nav">
+              <i className="fa fa-chevron-left" onClick={() => this.changePage(-25, edms.PagingInfo.Skip, edms.PagingInfo.Total)}></i>
+              <i className="fa fa-chevron-right" onClick={() => this.changePage(+25, edms.PagingInfo.Skip, edms.PagingInfo.Total)}></i>
+            </div>
+
+            {edmsForRender.map((motion, i) =>
+                <div className="billResult" onClick={() => this.selectMotion(motion.Id)} key={i}>
+                  <h4>{motion.Title}</h4>
+                  <span></span>
+                  <h5>EDM {motion.UIN}: Tabled on {Formatters.dateHandler(motion.DateTabled)}, {motion.SponsorsCount} Signatures</h5>
+
+                  <div className="sponsor">
+                    <img style={{border: "0.3em solid #" + motion.PrimarySponsor.PartyColour}} src={motion.PrimarySponsor.PhotoUrl}></img>
+                    <h3>Primary Sponsor: {motion.PrimarySponsor.Name}</h3>
+                    <h5>{motion.PrimarySponsor.Party} Member for {motion.PrimarySponsor.Constituency}</h5>
+                  </div>
+
+
+              </div>)}
+
+              <div className="centreTitle nav">
+                <i className="fa fa-chevron-left" onClick={() => this.changePage(-25, edms.PagingInfo.Skip, edms.PagingInfo.Total)}></i>
+                <i className="fa fa-chevron-right" onClick={() => this.changePage(+25, edms.PagingInfo.Skip, edms.PagingInfo.Total)}></i>
+              </div>
+              <p>Page {Math.floor(edms.PagingInfo.Skip / 25) + 1} of {Math.floor(edms.PagingInfo.Total / 25) + 1}</p>
+          </div>
+
+
+        </div>
+        <Footer/>
+      </div>
+    );
+  }
+}
+
+class MotionDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {motionResult: null, viewSignatures: false, viewAmmendments: false};
+    this.APIcaller("https://oralquestionsandmotions-api.parliament.uk/EarlyDayMotion/" + this.props.id);
+  }
+  APIcaller(url, endpoint){
+    this.responseText = null; // Weird cache issue
+    var self = this;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState === 4 && this.status === 200) {
+        var response = JSON.stringify(JSON.parse(this.responseText));
+        self.setState({motionResult: response});
+      }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+  }
+  selectSponsor(id){
+    ReactDOM.unmountComponentAtNode(document.getElementById('root'));
+    ReactDOM.render(<MemberDisplay id={id}/>, document.getElementById('root'));
+  }
+  render() {
+    var motion = JSON.parse(this.state.motionResult);
+    console.log(motion);
+    if (motion === null) {
+      return (<p/>);
+    }
+    var viewSignatures = this.state.viewSignatures ? {display: "block", margin: 0} : {display: "none"};
+    var supportersForRender = []; var sponsorsForRender = [];
+    if (motion !== null && motion !== undefined){
+      for (var i = 1; i < motion.Response.Sponsors.length; i++){
+        if (motion.Response.Sponsors[i].SponsoringOrder <= 6) {
+          sponsorsForRender[i] = motion.Response.Sponsors[i];
+        }
+        else {
+          supportersForRender[i] = motion.Response.Sponsors[i];
+        }
+      }
+    }
+    else {
+      return(<p></p>);
+    }
+
+    var viewAmmendments = this.state.viewAmmendments ? {display: "block", margin: 0} : {display: "none"};
+
+
+
+
+    return(
+      <div>
+        <div>
+          <Header/>
+        </div>
+        <div className="mainContent">
+          <div className="contentBlock centreTitle">
+            <h3>{motion.Response.Title}</h3>
+            <h5>EDM {motion.Response.UIN}: Tabled on {Formatters.dateHandler(motion.Response.DateTabled)}</h5>
+            <p>{motion.Response.MotionText}</p>
+          </div>
+          <div className="contentBlock">
+            <div className="expandable nav centreTitle" onClick={() => this.setState({viewSignatures: (!this.state.viewSignatures)})}>
+              <h3 className="billTitle">Supporters</h3>
+              <i className="fa fa-chevron-down"></i>
+            </div>
+            <div style={viewSignatures} className="items">
+              <div className="individualItem votingMember selected" style={{borderLeft: "0.6em solid #" + motion.Response.PrimarySponsor.PartyColour}} onClick={() => this.selectSponsor(motion.Response.PrimarySponsor.MemberId)}>
+                <img style={{border: "0.3em solid #" + motion.Response.PrimarySponsor.PartyColour}} src={motion.Response.PrimarySponsor.PhotoUrl}></img>
+                <h3>{motion.Response.PrimarySponsor.Name} (Primary Sponsor)</h3>
+                <h4>{motion.Response.PrimarySponsor.Party} Member for {motion.Response.PrimarySponsor.Constituency}</h4>
+              </div>
+              {sponsorsForRender.map((sponsor, i) =>
+                <div className="individualItem votingMember selected" style={{borderLeft: "0.6em solid #" + sponsor.Member.PartyColour}} onClick={() => this.selectSponsor(sponsor.MemberId)}>
+                  <img style={{border: "0.3em solid #" + sponsor.Member.PartyColour}} src={sponsor.Member.PhotoUrl}></img>
+                  <h3>{sponsor.Member.Name} (Sponsor)</h3>
+                  <h4>{sponsor.Member.Party} Member for {sponsor.Member.Constituency}</h4>
+                </div>
+              )}
+              {supportersForRender.map((sponsor, i) =>
+                <div className="individualItem votingMember selected" style={{borderLeft: "0.6em solid #" + sponsor.Member.PartyColour}} onClick={() => this.selectSponsor(sponsor.MemberId)}>
+                  <img style={{border: "0.3em solid #" + sponsor.Member.PartyColour}} src={sponsor.Member.PhotoUrl}></img>
+                  <h3>{sponsor.Member.Name} (Supporter)</h3>
+                  <h4>{sponsor.Member.Party} Member for {sponsor.Member.Constituency}</h4>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
         <Footer/>
       </div>
